@@ -1,10 +1,21 @@
 import os
 from contextlib import contextmanager
 
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, declarative_base
 
+# Load variables from a .env file (if present) into the environment
+load_dotenv()
+
 DATABASE_URL = os.environ.get("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL is not set. Add it to your .env file or environment "
+        "variables, e.g.:\n"
+        "  DATABASE_URL=mysql+pymysql://user:password@localhost:3306/hospital_db"
+    )
 
 connect_args = {}
 if DATABASE_URL.startswith("sqlite"):
@@ -28,8 +39,10 @@ if DATABASE_URL.startswith("sqlite"):
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, future=True)
 
+
 class _CustomBase:
     __table_args__ = {'extend_existing': True}
+
 
 Base = declarative_base(cls=_CustomBase)
 
@@ -39,7 +52,7 @@ def init_db():
     # Import models here (not at module top) to avoid circular imports
     # between database.py and models.py.
     Base.metadata.create_all(bind=engine)
-    
+
     from backend.database.seed import seed_database
     seed_database()
 
