@@ -123,15 +123,8 @@ def seed_database():
             db.commit()
 
         if db.query(Department).count() == 0:
-            departments = [
-                ("Cardiology", 500),
-                ("Neurology", 500),
-                ("Orthopedics", 500),
-                ("Dermatology", 500),
-                ("General Medicine", 500),
-            ]
-            for d_name, d_fee in departments:
-                db.add(Department(name=d_name, base_fee=d_fee))
+            for d_name in ["Cardiology", "Neurology", "Orthopedics", "Dermatology", "General Medicine"]:
+                db.add(Department(name=d_name))
             db.commit()
 
         if db.query(Doctor).count() == 0:
@@ -159,7 +152,6 @@ def seed_database():
                         last = last_names[name_index % len(last_names)]
                         name_index += 1
 
-                        fee = dept.base_fee + (doctor_id % 3) * 100
                         status = "ACTIVE" if doctor_id % 7 != 0 else "INACTIVE"
 
                         doc = Doctor(
@@ -167,7 +159,6 @@ def seed_database():
                             branch_id=branch.id,
                             department_id=dept.id,
                             qualification=quals[dept.name],
-                            fee=fee,
                             doctor_status=status
                         )
                         db.add(doc)

@@ -121,13 +121,11 @@ function renderDetail(appt) {
     <div><div class="sc-label">Doctor</div><div class="sc-value">${escapeHtml(appt.doctor_name)}</div></div>
     <div><div class="sc-label">Branch</div><div class="sc-value">${escapeHtml(appt.branch_name)}</div></div>
     <div><div class="sc-label">Department</div><div class="sc-value">${escapeHtml(appt.department_name)}</div></div>
-    <div class="sc-fee">
-      <div><div class="sc-label">Date &amp; time</div><div class="sc-value">${formatDate(appt.appointment_date)} &middot; ${formatTime(appt.time_slot)}</div></div>
-      <div class="sc-value">&#8377;${appt.fee}</div>
-    </div>
+    <div><div class="sc-label">Date &amp; time</div><div class="sc-value">${formatDate(appt.appointment_date)} &middot; ${formatTime(appt.time_slot)}</div></div>
   `;
   const actionRow = document.getElementById("actionRow");
-  actionRow.style.display = appt.status === "BOOKED" ? "flex" : "none";
+  const activeStatuses = ["BOOKED", "CONFIRMED", "RESCHEDULED"];
+  actionRow.style.display = activeStatuses.includes(appt.status) ? "flex" : "none";
   document.getElementById("reschedulePanel").hidden = true;
 }
 

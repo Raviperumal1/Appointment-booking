@@ -27,13 +27,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from sqlalchemy.orm import Session
 
-from backend.database.models import SymptomAnalysisRequest, BookRequest, CancelRequest, RescheduleRequest, BranchCreateRequest, \
-    BranchUpdateRequest, DoctorCreateRequest, DoctorUpdateRequest, DoctorStatusRequest, NotificationConfig, \
-    WhatsAppConfig, AIProviderConfig, PatientRegisterRequest, PatientLoginRequest, GoogleAuthRequest, \
-    PatientProfileUpdate, BranchStatusRequest, CreatePrescriptionRequest, CreateMedicalReportRequest, \
-    CompleteAppointmentRequest, DoctorScheduleRequest, SpecialAvailabilityRequest, PatientImportCommitRequest, \
-    RolePermissionsUpdate, RoleCreateRequest, \
+from backend.database.models import (
+    SymptomAnalysisRequest, BookRequest, CancelRequest, RescheduleRequest,
+    BranchCreateRequest, BranchUpdateRequest, BranchStatusRequest,
+    DepartmentCreateRequest, DepartmentUpdateRequest,
+    DoctorCreateRequest, DoctorUpdateRequest, DoctorStatusRequest,
+    DoctorScheduleRequest, SpecialAvailabilityRequest,
+    PatientRegisterRequest, PatientLoginRequest, GoogleAuthRequest,
+    PatientProfileUpdate,
+    PatientImportCommitRequest,
+    CreatePrescriptionRequest, CreateMedicalReportRequest, CompleteAppointmentRequest,
+
+    RolePermissionsUpdate, RoleCreateRequest,
+    NotificationConfig, WhatsAppConfig, AIProviderConfig,
     UserListResponse, UserCreateRequest, UserUpdateRequest, UserPasswordUpdateRequest
+)
 
 from backend import notifications
 from backend.database.db import init_db, get_db
@@ -880,7 +888,7 @@ def get_available_departments(db: Session, branch_id: Optional[int] = None):
     else:
         departments = db.query(Department).order_by(Department.name).all()
 
-    return [{"id": d.id, "name": d.name, "base_fee": d.base_fee} for d in departments]
+    return [{"id": d.id, "name": d.name} for d in departments]
 
 
 # ============================================================
@@ -938,7 +946,7 @@ def list_all_departments(db: Session = Depends(get_db)):
         {
             "id": department.id,
             "name": department.name,
-            "base_fee": department.base_fee,
+
         }
         for department in departments
     ]
@@ -1006,7 +1014,7 @@ def list_departments(
         {
             "id": department.id,
             "name": department.name,
-            "base_fee": department.base_fee,
+
         }
         for department in departments
     ]
@@ -1220,7 +1228,7 @@ def book_appointment(req: BookRequest, db: Session = Depends(get_db)):
         doctor_id=req.doctor_id,
         appointment_date=req.appointment_date,
         time_slot=req.time_slot,
-        fee=doctor["fee"],
+
         status='CONFIRMED',
         patient_id=patient_id,
         symptoms=req.reason
@@ -1250,7 +1258,7 @@ def book_appointment(req: BookRequest, db: Session = Depends(get_db)):
             "branch": branch.name,
             "date": req.appointment_date,
             "time": req.time_slot,
-            "fee": doctor["fee"],
+
         },
         mobile=req.mobile,
         email=req.email,
@@ -1295,7 +1303,7 @@ def book_appointment(req: BookRequest, db: Session = Depends(get_db)):
             "qualification": doctor["qualification"],
             "date": req.appointment_date,
             "time": req.time_slot,
-            "fee": doctor["fee"],
+
         },
     }
 
@@ -1312,7 +1320,7 @@ def get_appointment(code: str, db: Session = Depends(get_db)):
         "address": row.address, "reason": row.reason, "branch_id": row.branch_id,
         "department_id": row.department_id, "doctor_id": row.doctor_id,
         "appointment_date": row.appointment_date, "time_slot": row.time_slot,
-        "fee": row.fee, "status": row.status, "patient_id": row.patient_id, "symptoms": row.symptoms
+        "status": row.status, "patient_id": row.patient_id, "symptoms": row.symptoms
     }
 
 
@@ -1329,7 +1337,7 @@ def lookup_appointment(code: str, patient_id: int = Depends(get_current_patient_
         "address": row.address, "reason": row.reason, "branch_id": row.branch_id,
         "department_id": row.department_id, "doctor_id": row.doctor_id,
         "appointment_date": row.appointment_date, "time_slot": row.time_slot,
-        "fee": row.fee, "status": row.status, "patient_id": row.patient_id, "symptoms": row.symptoms,
+        "status": row.status, "patient_id": row.patient_id, "symptoms": row.symptoms,
         "doctor_name": doctor.name if doctor else "Unknown",
         "branch_name": branch.name if branch else "Unknown",
         "department_name": department.name if department else "Unknown"
@@ -1461,7 +1469,7 @@ def reschedule_appointment(code: str, req: RescheduleRequest, patient_id: int = 
             "old_time": old_time,
             "date": req.appointment_date,
             "time": req.time_slot,
-            "fee": appt.fee,
+
         },
         mobile=appt.mobile,
         email=appt.email,
@@ -1480,7 +1488,7 @@ def reschedule_appointment(code: str, req: RescheduleRequest, patient_id: int = 
             "qualification": doctor["qualification"],
             "date": req.appointment_date,
             "time": req.time_slot,
-            "fee": appt.fee,
+
         },
     }
 
@@ -1809,6 +1817,87 @@ def admin_cancel_appointment(code: str, principal: Principal = Depends(require_p
     _mark_cancelled(db, appt)
     notify_result = _notify_cancelled(db, appt)
     return {"status": "CANCELLED", "appointment_code": code, "notification_preview": notify_result["preview"]}
+
+@app.get("/admin/departments")
+def admin_list_departments(principal: Principal = Depends(require_permission('DEPARTMENT_READ')),
+                           db: Session = Depends(get_db)):
+    from backend.database.models import Department
+    deps = db.query(Department).order_by(Department.name).all()
+    return [{"id": d.id, "name": d.name, "description": d.description, "department_status": d.department_status} for d in deps]
+
+
+@app.post("/admin/departments")
+def admin_create_department(
+        request: DepartmentCreateRequest,
+        principal: Principal = Depends(require_permission('DEPARTMENT_MANAGE')),
+        db: Session = Depends(get_db)
+):
+    from backend.database.models import Department
+    name = request.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Department name cannot be empty")
+    existing = db.query(Department).filter(Department.name.ilike(name)).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Department already exists")
+    new_dept = Department(
+        name=name,
+        description=request.description,
+        department_status=request.department_status
+    )
+    db.add(new_dept)
+    db.commit()
+    db.refresh(new_dept)
+    return new_dept
+
+
+@app.put("/admin/departments/{dept_id}")
+def admin_update_department(
+        dept_id: int,
+        request: DepartmentUpdateRequest,
+        principal: Principal = Depends(require_permission('DEPARTMENT_MANAGE')),
+        db: Session = Depends(get_db)
+):
+    from backend.database.models import Department
+    dept = db.query(Department).filter(Department.id == dept_id).first()
+    if not dept:
+        raise HTTPException(status_code=404, detail="Department not found")
+    
+    if request.name is not None:
+        name = request.name.strip()
+        if not name:
+            raise HTTPException(status_code=400, detail="Department name cannot be empty")
+        existing = db.query(Department).filter(Department.name.ilike(name), Department.id != dept_id).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Department already exists")
+        dept.name = name
+    if request.description is not None:
+        dept.description = request.description
+    if request.department_status is not None:
+        dept.department_status = request.department_status
+        
+    db.commit()
+    db.refresh(dept)
+    return dept
+
+
+@app.delete("/admin/departments/{dept_id}")
+def admin_delete_department(
+        dept_id: int,
+        principal: Principal = Depends(require_permission('DEPARTMENT_MANAGE')),
+        db: Session = Depends(get_db)
+):
+    from backend.database.models import Department, Doctor
+    dept = db.query(Department).filter(Department.id == dept_id).first()
+    if not dept:
+        raise HTTPException(status_code=404, detail="Department not found")
+    
+    docs_using = db.query(Doctor).filter(Doctor.department_id == dept_id).first()
+    if docs_using:
+        raise HTTPException(status_code=400, detail="Cannot delete department because it is currently assigned to doctors.")
+        
+    db.delete(dept)
+    db.commit()
+    return {"status": "deleted"}
 
 
 @app.get("/admin/branches")

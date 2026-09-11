@@ -673,7 +673,7 @@ function renderAppointments(filter) {
             <span>🏥 ${escapeHtml(a.branch_name)}</span>
             <span>🩺 ${escapeHtml(a.department_name)}</span>
             <span>📅 <strong>${formatDate(a.appointment_date)}</strong> at <strong>${a.time_slot}</strong></span>
-            <span>Fee: &#8377;${a.fee}</span>
+
           </div>
           <div style="margin-top:6px; font-size:12px; font-family:var(--font-mono);">
             Code: <strong>${escapeHtml(a.appointment_code)}</strong> | Status: <span class="badge-${statusText.toLowerCase()}">${statusText}</span>

@@ -47,7 +47,7 @@ def doctor_exists_active(db: Session, doctor_id: int):
         "consultation_duration": doc.consultation_duration,
         "branch_id": doc.branch_id,
         "department_id": doc.department_id,
-        "fee": doc.fee,
+
         "mobile": doc.mobile,
         "email": doc.email,
         "qualification": doc.qualification
@@ -142,7 +142,7 @@ def get_available_departments(db: Session, branch_id: Optional[int] = None):
     else:
         deps = db.query(Department).order_by(Department.name).all()
         
-    return [{"id": d.id, "name": d.name, "base_fee": d.base_fee} for d in deps]
+    return [{"id": d.id, "name": d.name} for d in deps]
 
 
 def list_doctors_for_branch_department(db: Session, branch_id: int, department_id: Optional[int] = None):
@@ -159,7 +159,7 @@ def list_doctors_for_branch_department(db: Session, branch_id: int, department_i
             "branch_id": d.branch_id,
             "department_id": d.department_id,
             "qualification": d.qualification,
-            "fee": d.fee,
+
             "doctor_status": d.doctor_status,
         }
         for d in doctors
@@ -194,7 +194,7 @@ def list_doctors_with_availability(db: Session, branch_id: int, department_id: O
                 "branch_id": doc["branch_id"],
                 "department_id": doc["department_id"],
                 "qualification": doc["qualification"],
-                "fee": doc["fee"],
+
                 "doctor_status": doc["doctor_status"],
                 "available": available,
                 "status": status,
@@ -215,7 +215,7 @@ def get_doctor(db: Session, doctor_id: int):
         "branch_id": doc.branch_id,
         "department_id": doc.department_id,
         "qualification": doc.qualification,
-        "fee": doc.fee,
+
         "doctor_status": doc.doctor_status,
         "doctor_code": doc.doctor_code,
         "mobile": doc.mobile,
@@ -251,8 +251,7 @@ def create_doctor(db: Session, data: dict):
         
     if data["doctor_status"] not in {"ACTIVE", "INACTIVE"}:
         raise HTTPException(status_code=400, detail="doctor_status must be ACTIVE or INACTIVE")
-    if data["fee"] < 0:
-        raise HTTPException(status_code=400, detail="fee must be non-negative")
+
     if data.get("doctor_type", "REGULAR") not in {"REGULAR", "SPECIAL"}:
         raise HTTPException(status_code=400, detail="doctor_type must be REGULAR or SPECIAL")
 
@@ -265,7 +264,7 @@ def create_doctor(db: Session, data: dict):
         department_id=data["department_id"],
         qualification=data.get("qualification", ""),
         specialization=data.get("specialization") or data.get("qualification", ""),
-        fee=data["fee"],
+
         doctor_status=data["doctor_status"],
         doctor_type=data.get("doctor_type", "REGULAR"),
         consultation_duration=data.get("consultation_duration", 30)
@@ -295,13 +294,12 @@ def update_doctor(db: Session, doctor_id: int, data: dict):
     if data.get("doctor_status") is not None and data["doctor_status"] not in {"ACTIVE", "INACTIVE"}:
         raise HTTPException(status_code=400, detail="doctor_status must be ACTIVE or INACTIVE")
         
-    if data.get("fee") is not None and data["fee"] < 0:
-        raise HTTPException(status_code=400, detail="fee must be non-negative")
+
         
     if data.get("doctor_type") is not None and data["doctor_type"] not in {"REGULAR", "SPECIAL"}:
         raise HTTPException(status_code=400, detail="doctor_type must be REGULAR or SPECIAL")
 
-    for key in ["doctor_code", "name", "mobile", "email", "branch_id", "department_id", "qualification", "specialization", "fee", "doctor_status", "doctor_type", "consultation_duration"]:
+    for key in ["doctor_code", "name", "mobile", "email", "branch_id", "department_id", "qualification", "specialization", "doctor_status", "doctor_type", "consultation_duration"]:
         if key in data and data[key] is not None:
             setattr(doc, key, data[key])
             

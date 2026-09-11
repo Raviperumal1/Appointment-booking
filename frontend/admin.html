@@ -91,6 +91,21 @@
           </svg>
           <span class="nav-label">Branches</span>
         </button>
+        <button type="button" class="nav-item" data-tab="departments" title="Departments">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+            <rect x="9" y="9" width="6" height="6"></rect>
+            <line x1="9" y1="1" x2="9" y2="4"></line>
+            <line x1="15" y1="1" x2="15" y2="4"></line>
+            <line x1="9" y1="20" x2="9" y2="23"></line>
+            <line x1="15" y1="20" x2="15" y2="23"></line>
+            <line x1="20" y1="9" x2="23" y2="9"></line>
+            <line x1="20" y1="14" x2="23" y2="14"></line>
+            <line x1="1" y1="9" x2="4" y2="9"></line>
+            <line x1="1" y1="14" x2="4" y2="14"></line>
+          </svg>
+          <span class="nav-label">Departments</span>
+        </button>
         <button type="button" class="nav-item" data-tab="patients" title="Registered Patients">
           <svg class="nav-icon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -209,7 +224,7 @@
                   <th>Doctor</th>
                   <th>Date</th>
                   <th>Time</th>
-                  <th>Fee</th>
+
                   <th>Status</th>
                   <th></th>
                 </tr>
@@ -249,7 +264,7 @@
                   <th>Branch</th>
                   <th>Department</th>
                   <th>Qualification</th>
-                  <th>Fee</th>
+
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -312,13 +327,54 @@
                   <th>Branch</th>
                   <th>Department</th>
                   <th>Qualification</th>
-                  <th>Fee</th>
+
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody id="branchDoctorTableBody">
                 <tr><td colspan="8" class="empty-note">Select a branch above.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ============ Departments tab ============ -->
+        <section class="tab-panel" id="departmentsTab">
+          <div class="section-header">
+            <div>
+              <h2>Departments</h2>
+              <p class="sub-text">Manage hospital departments</p>
+            </div>
+            <button class="btn btn-primary" id="addDepartmentBtn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Add department
+            </button>
+          </div>
+          <section class="filter-bar">
+            <div class="filter-group">
+              <div class="search-input">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="departmentSearch" placeholder="Search departments...">
+              </div>
+            </div>
+          </section>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="departmentTableBody">
+                <tr><td colspan="5" class="empty-note">Loading...</td></tr>
               </tbody>
             </table>
           </div>
@@ -379,23 +435,40 @@
 
           </section>
 
-          <div class="table-wrap">
-            <table class="admin-table" id="conversationTable">
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Mobile</th>
-                  <th>Source</th>
-                  <th>Last message</th>
-                  <th>Messages</th>
-                  <th>Last activity</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="conversationTableBody">
-                <tr><td colspan="7" class="loading">Loading conversations&hellip;</td></tr>
-              </tbody>
-            </table>
+          <div class="inbox-wrap" id="inboxWrap">
+            <!-- Left: fixed-size scrollable list of conversation cards -->
+            <div class="inbox-list-panel">
+              <div class="inbox-list-head">
+                <span id="inboxListCount">0 conversations</span>
+              </div>
+              <div class="inbox-list" id="inboxList">
+                <div class="loading">Loading conversations&hellip;</div>
+              </div>
+            </div>
+
+            <!-- Right: fixed-size conversation reader, content scrolls internally -->
+            <div class="inbox-chat-panel" id="inboxChatPanel">
+              <div class="inbox-chat-empty" id="inboxChatEmpty">
+                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8A2.5 2.5 0 0 1 17.5 16H10l-4.5 4V16h-.03A2.47 2.47 0 0 1 4 13.5v-8Z"/>
+                  <path d="M8 8.5h8M8 11.5h5"/>
+                </svg>
+                <p>Select a conversation to read the full message history</p>
+              </div>
+
+              <div class="chat-modal-head" id="inboxChatHead" hidden>
+                <button type="button" class="icon-btn inbox-back-btn" id="inboxBackBtn" aria-label="Back to list">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <span class="chat-modal-avatar" id="conversationModalAvatar" aria-hidden="true"></span>
+                <div class="chat-modal-head-text">
+                  <h4 id="conversationModalTitle">Conversation</h4>
+                  <p id="conversationModalSub"></p>
+                </div>
+              </div>
+
+              <div class="chat-thread" id="chatThread"></div>
+            </div>
           </div>
         </section>
 
@@ -652,11 +725,11 @@
                 <button type="button" class="btn btn-ghost btn-small" id="clearAllPermsBtn">Clear All</button>
               </div>
             </div>
-            
+
             <div id="permissionsContainer">
                <!-- Grouped permissions injected here -->
             </div>
-            
+
             <div class="form-actions" style="margin-top: 20px; justify-content: flex-end; display: flex; gap: 10px;">
               <button type="button" class="btn btn-ghost" id="resetRoleChangesBtn">Reset Changes</button>
               <button type="submit" class="btn btn-primary" id="saveRoleChangesBtn">Save Changes</button>
@@ -682,7 +755,7 @@
       </button>
     </div>
     <div class="modal-body" style="display: flex; flex-direction: column; gap: 24px;">
-      
+
       <!-- Regular Schedule Section -->
       <div>
         <h4 style="margin-top: 0; margin-bottom: 12px; color: var(--teal-deep);">Weekly Schedule</h4>
@@ -816,10 +889,6 @@
           <input id="doctorDuration" name="consultation_duration" type="number" min="5" value="30" required />
         </div>
         <div class="field">
-          <label for="doctorFee">Fee</label>
-          <input id="doctorFee" name="fee" type="number" min="0" required />
-        </div>
-        <div class="field">
           <label for="doctorStatus">Status</label>
           <select id="doctorStatus" name="doctor_status" required>
             <option value="ACTIVE">ACTIVE</option>
@@ -853,7 +922,7 @@
           <input id="newRoleDesc" name="description" placeholder="Short description of this role" />
         </div>
       </div>
-      
+
       <div class="field" style="margin-top: 15px;">
         <label>Select Initial Permissions</label>
         <div id="newRolePermissionsContainer" style="max-height: 250px; overflow-y: auto; padding-right: 10px; border: 1px solid var(--border); border-radius: 6px; padding: 10px;">
@@ -901,6 +970,39 @@
       <div class="form-actions">
         <button type="button" class="btn btn-ghost" id="cancelBranchEdit">Cancel</button>
         <button type="submit" class="btn btn-primary" id="saveBranchButton">Save branch</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Department Form Popover Modal -->
+<div class="modal-overlay" id="departmentModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h4 id="departmentFormTitle">Add new department</h4>
+      <button type="button" class="modal-close" id="closeDepartmentModal">&times;</button>
+    </div>
+    <form id="departmentForm">
+      <div class="form-grid">
+        <div class="field">
+          <label for="departmentName">Name *</label>
+          <input id="departmentName" name="name" required />
+        </div>
+        <div class="field">
+          <label for="departmentDescription">Description</label>
+          <input id="departmentDescription" name="description" />
+        </div>
+        <div class="field">
+          <label for="departmentStatus">Status</label>
+          <select id="departmentStatus" name="department_status" required>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="INACTIVE">INACTIVE</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" id="cancelDepartmentEdit">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="saveDepartmentButton">Save department</button>
       </div>
     </form>
   </div>
@@ -999,24 +1101,6 @@
       <h5 style="margin-top: 20px; border-bottom: 1px solid var(--line); padding-bottom: 8px;">Medical History Timeline</h5>
       <div id="patientDetailsTimeline" class="timeline-container" style="margin-top: 15px; padding-left: 20px; border-left: 2px solid var(--line);">
         <!-- Populated via JS -->
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Conversation Viewer Modal -->
-<div class="modal-overlay" id="conversationModal" hidden>
-  <div class="modal-card">
-    <div class="modal-head">
-      <div>
-        <h4 id="conversationModalTitle">Conversation</h4>
-        <p class="section-sub" id="conversationModalSub" style="margin:2px 0 0;"></p>
-      </div>
-      <button type="button" class="modal-close" id="closeConversationModal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div id="chatThread" class="chat-thread">
-        <div class="loading">Loading conversation&hellip;</div>
       </div>
     </div>
   </div>

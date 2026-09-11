@@ -20,6 +20,7 @@ const state = {
 const adminState = {
   doctorEditId: null,
   branchEditId: null,
+  departmentEditId: null,
   patientEditId: null,
   branches: [],
   departments: [],
@@ -42,6 +43,7 @@ const TAB_META = {
   booking: { title: "Bookings", sub: "Live appointment activity across every branch" },
   doctors: { title: "Doctors", sub: "Manage the doctor roster and public availability" },
   branches: { title: "Branches", sub: "Manage branches and see who's assigned where" },
+  departments: { title: "Departments", sub: "Manage hospital departments" },
   patients: { title: "Registered Patients", sub: "View and manage registered patients and their medical history." },
   conversations: { title: "Conversations", sub: "Full chat history across the web widget, WhatsApp bot, and AI chatbot" },
   notifications: { title: "Notifications", sub: "Manage credentials for SMS and Email notifications" },
@@ -139,6 +141,7 @@ function applyRBAC() {
     'booking': 'APPOINTMENT_READ',
     'doctors': 'DOCTOR_READ',
     'branches': 'BRANCH_READ',
+    'departments': 'DEPARTMENT_READ',
     'patients': 'PATIENT_READ',
     'conversations': 'CONVERSATION_READ',
     'notifications': 'ROLE_MANAGE',
@@ -268,6 +271,10 @@ function setActiveTab(tabName) {
     if (tabName === "branches") {
         loadBranches();
         showBranchForm(false);
+
+    } else if (tabName === "departments") {
+        loadAdminDepartments();
+        showDepartmentForm(false);
 
     } else if (tabName === "doctors") {
         loadDoctorManagement();
@@ -620,7 +627,7 @@ function renderTable(rows) {
         <td>${escapeHtml(r.doctor_name)}</td>
         <td>${escapeHtml(r.appointment_date)}</td>
         <td>${formatTime(r.time_slot)}</td>
-        <td class="fee-cell">&#8377;${r.fee}</td>
+
         <td><span class="status-pill ${r.status}">${r.status}</span></td>
         <td>
           ${r.status === "BOOKED" || r.status === "CONFIRMED" || r.status === "RESCHEDULED"
@@ -889,7 +896,7 @@ function doctorRowHtml(doc) {
       <td>${escapeHtml(doc.branch_name)}</td>
       <td>${escapeHtml(doc.department_name)}</td>
       <td>${escapeHtml(doc.qualification)}</td>
-      <td class="fee-cell">&#8377;${doc.fee}</td>
+
       <td><span class="status-pill ${doc.doctor_status}">${doc.doctor_status}</span></td>
       <td>
         <button class="btn btn-ghost btn-small edit-doctor" data-id="${doc.id}">Edit</button>
@@ -919,7 +926,7 @@ function wireDoctorRowActions(tbody, doctors, afterChange) {
       document.getElementById("doctorEmail").value = doctor.email || "";
       document.getElementById("doctorType").value = doctor.doctor_type || "REGULAR";
       document.getElementById("doctorDuration").value = doctor.consultation_duration || 30;
-      document.getElementById("doctorFee").value = doctor.fee;
+
       document.getElementById("doctorStatus").value = doctor.doctor_status;
       document.getElementById("saveDoctorButton").textContent = "Update doctor";
       document.getElementById("cancelDoctorEdit").hidden = false;
@@ -1239,7 +1246,7 @@ async function submitDoctorForm(event) {
     branch_id: Number(form.branch_id.value),
     department_id: Number(form.department_id.value),
     qualification: form.qualification.value.trim(),
-    fee: Number(form.fee.value),
+
     doctor_status: form.doctor_status.value,
     mobile: form.mobile.value.trim() || null,
     email: form.email.value.trim() || null,
@@ -1780,8 +1787,8 @@ function initAdminForms() {
     convState.source = document.getElementById("fConvSource").value;
     loadConversations();
   });
-  document.getElementById("closeConversationModal")?.addEventListener("click", () => {
-    document.getElementById("conversationModal").hidden = true;
+  document.getElementById("inboxBackBtn")?.addEventListener("click", () => {
+    document.getElementById("inboxWrap")?.classList.remove("chat-open");
   });
 }
 
@@ -1789,9 +1796,44 @@ function initAdminForms() {
 // Conversations tab
 // ---------------------------------------------------------------------------
 
+/**
+ * WhatsApp-style relative day label. Recomputed against `new Date()` every
+ * call, so it is never stale/hardcoded — a message shown as "Monday" today
+ * will correctly become "Mon, 8 Sep" (or similar) once 7+ days have passed,
+ * with no stored label or batch job needed.
+ *
+ *   0 days ago   -> "Today" (or a time, e.g. "10:42 AM", if requested)
+ *   1 day ago    -> "Yesterday"
+ *   2-6 days ago -> weekday name, e.g. "Monday"
+ *   7+ days ago  -> short absolute date, e.g. "3 Sep 2026"
+ */
+function formatRelativeDayLabel(date, { timeForToday = false } = {}) {
+  const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diffDays = Math.round((startOfDay(new Date()) - startOfDay(date)) / 86400000);
+
+  if (diffDays === 0) {
+    return timeForToday
+      ? date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+      : "Today";
+  }
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays > 1 && diffDays < 7) return date.toLocaleDateString([], { weekday: "long" });
+  return date.toLocaleDateString([], { day: "numeric", month: "short", year: diffDays > 330 ? "numeric" : undefined });
+}
+
+function initials(name) {
+  const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "?";
+  return (parts[0][0] + (parts[1]?.[0] || "")).toUpperCase();
+}
+
+// Currently open conversation, so a re-render (e.g. after search) can
+// keep the reader panel's selection highlighted and intact.
+let activeConversationId = null;
+
 async function loadConversations() {
-  const tbody = document.getElementById("conversationTableBody");
-  tbody.innerHTML = `<tr><td colspan="7" class="loading">Loading conversations...</td></tr>`;
+  const list = document.getElementById("inboxList");
+  list.innerHTML = `<div class="loading">Loading conversations...</div>`;
   try {
     const params = new URLSearchParams();
     if (convState.search) params.set("search", convState.search);
@@ -1799,65 +1841,93 @@ async function loadConversations() {
     const qs = params.toString();
     const conversations = await adminApi(`/admin/conversations${qs ? `?${qs}` : ""}`);
     convState.conversations = conversations;
-    renderConversationsTable(conversations);
+    renderConversationList(conversations);
   } catch (err) {
     if (err.message !== "Unauthorized") {
-      tbody.innerHTML = `<tr><td colspan="7" class="empty-note">Couldn't load conversations: ${escapeHtml(err.message)}</td></tr>`;
+      list.innerHTML = `<div class="empty-note">Couldn't load conversations: ${escapeHtml(err.message)}</div>`;
     }
   }
 }
 
-function renderConversationsTable(conversations) {
-  const tbody = document.getElementById("conversationTableBody");
+function renderConversationList(conversations) {
+  const list = document.getElementById("inboxList");
+  const count = document.getElementById("inboxListCount");
+  count.textContent = `${conversations.length} conversation${conversations.length === 1 ? "" : "s"}`;
+
   if (!conversations.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="empty-note">No conversations found.</td></tr>`;
+    list.innerHTML = `<div class="empty-note">No conversations found.</div>`;
+    // Nothing to show on the right either.
+    activeConversationId = null;
+    resetInboxChatPanel();
     return;
   }
 
-  tbody.innerHTML = conversations.map((c) => `
-    <tr>
-      <td>${escapeHtml(c.user_name || "Unknown")}</td>
-      <td>${escapeHtml(c.mobile || "—")}</td>
-      <td>${(c.sources || []).map((s) => `<span class="source-pill ${escapeHtml(s)}">${escapeHtml(SOURCE_LABEL[s] || s)}</span>`).join(" ") || "—"}</td>
-      <td style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(c.last_message || "—")}</td>
-      <td>${escapeHtml(String(c.message_count ?? "—"))}</td>
-      <td>${c.last_message_at ? escapeHtml(new Date(c.last_message_at).toLocaleString()) : "—"}</td>
-      <td>
-        <button class="icon-btn" data-action="view-conversation" data-id="${c.id}" title="View full conversation">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-        </button>
-      </td>
-    </tr>
+  list.innerHTML = conversations.map((c) => `
+    <button type="button" class="inbox-card ${c.id === activeConversationId ? "active" : ""}" data-id="${c.id}">
+      <span class="conv-avatar">${escapeHtml(initials(c.user_name))}</span>
+      <span class="inbox-card-body">
+        <span class="inbox-card-top">
+          <span class="inbox-card-name">${escapeHtml(c.user_name || "Unknown")}</span>
+          <span class="inbox-card-time">${c.last_message_at ? escapeHtml(formatRelativeDayLabel(new Date(c.last_message_at), { timeForToday: true })) : ""}</span>
+        </span>
+        <span class="inbox-card-preview">${escapeHtml(c.last_message || "No messages yet")}</span>
+        <span class="inbox-card-meta">
+          ${(c.sources || []).map((s) => `<span class="source-pill ${escapeHtml(s)}">${escapeHtml(SOURCE_LABEL[s] || s)}</span>`).join("")}
+          <span class="inbox-card-count">${escapeHtml(String(c.message_count ?? 0))}</span>
+        </span>
+      </span>
+    </button>
   `).join("");
 
-  tbody.querySelectorAll('[data-action="view-conversation"]').forEach((btn) => {
-    const id = Number(btn.dataset.id);
-    btn.addEventListener("click", () => openConversationModal(id));
+  list.querySelectorAll(".inbox-card").forEach((card) => {
+    card.addEventListener("click", () => openConversation(Number(card.dataset.id)));
   });
+
+  // If the conversation open in the reader panel is still in this list
+  // (e.g. after a search/filter change), leave it open as-is.
+  if (activeConversationId && !conversations.some((c) => c.id === activeConversationId)) {
+    activeConversationId = null;
+    resetInboxChatPanel();
+  }
 }
 
-async function openConversationModal(id) {
+function resetInboxChatPanel() {
+  document.getElementById("inboxWrap")?.classList.remove("chat-open");
+  document.getElementById("inboxChatHead").hidden = true;
+  document.getElementById("inboxChatEmpty").hidden = false;
+  document.getElementById("chatThread").innerHTML = "";
+}
+
+async function openConversation(id) {
   const convo = convState.conversations.find((c) => c.id === id);
-  const modal = document.getElementById("conversationModal");
   const thread = document.getElementById("chatThread");
   const title = document.getElementById("conversationModalTitle");
   const sub = document.getElementById("conversationModalSub");
+  const avatar = document.getElementById("conversationModalAvatar");
+
+  activeConversationId = id;
+  document.querySelectorAll(".inbox-card").forEach((card) => {
+    card.classList.toggle("active", Number(card.dataset.id) === id);
+  });
+
+  document.getElementById("inboxWrap")?.classList.add("chat-open");
+  document.getElementById("inboxChatEmpty").hidden = true;
+  document.getElementById("inboxChatHead").hidden = false;
 
   title.textContent = convo ? (convo.user_name || "Unknown user") : "Conversation";
+  avatar.textContent = initials(convo ? convo.user_name : "");
   sub.textContent = convo
     ? `${(convo.sources || []).map((s) => SOURCE_LABEL[s] || s).join(" + ")}${convo.mobile ? " · " + convo.mobile : ""}`
     : "";
   thread.innerHTML = `<div class="loading">Loading conversation...</div>`;
-  modal.hidden = false;
 
   try {
     const messages = await adminApi(`/admin/conversations/${id}/messages`);
-    renderChatThread(messages);
+    // Guard against a slower request landing after the user has already
+    // clicked a different conversation in the meantime.
+    if (activeConversationId === id) renderChatThread(messages);
   } catch (err) {
-    if (err.message !== "Unauthorized") {
+    if (err.message !== "Unauthorized" && activeConversationId === id) {
       thread.innerHTML = `<div class="empty-note">Couldn't load conversation: ${escapeHtml(err.message)}</div>`;
     }
   }
@@ -1891,11 +1961,26 @@ function renderChatThread(messages) {
     return;
   }
 
-  thread.innerHTML = messages.map((m) => {
+  // Group consecutive messages under a WhatsApp-style day divider.
+  // The divider is the ONLY place a date appears — bubbles themselves
+  // only ever show a time.
+  let html = "";
+  let lastDayKey = null;
+
+  messages.forEach((m) => {
+    const ts = m.timestamp ? new Date(m.timestamp) : null;
+    if (ts) {
+      const dayKey = ts.toDateString();
+      if (dayKey !== lastDayKey) {
+        lastDayKey = dayKey;
+        html += `<div class="chat-day-divider"><span>${escapeHtml(formatRelativeDayLabel(ts))}</span></div>`;
+      }
+    }
+
     const isUser = (m.sender || "").toUpperCase() === "USER";
-    const time = m.timestamp ? new Date(m.timestamp).toLocaleString() : "";
+    const time = ts ? ts.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "";
     const sourceLabel = SOURCE_LABEL[m.source] || m.source;
-    return `
+    html += `
       <div class="chat-row ${isUser ? "user" : "bot"}">
         <div class="chat-bubble">
           ${m.source ? `<span class="chat-source-tag">${escapeHtml(sourceLabel)}</span>` : ""}
@@ -1904,8 +1989,9 @@ function renderChatThread(messages) {
         </div>
       </div>
     `;
-  }).join("");
+  });
 
+  thread.innerHTML = html;
   thread.scrollTop = thread.scrollHeight;
 }
 
@@ -1930,14 +2016,14 @@ async function loadRolesAndPermissions() {
     // Populate role dropdown
     const select = document.getElementById("roleSelect");
     const prevSelectedId = select.value;
-    
+
     select.innerHTML = '<option value="">-- Select a Role --</option>' +
       roles.map(r => `<option value="${r.id}">${escapeHtml(r.name)}</option>`).join('');
 
     // Populate permissions creation container (for new roles)
     const newRoleContainer = document.getElementById("newRolePermissionsContainer");
     newRoleContainer.innerHTML = renderPermissionsGrouped(perms, "newRole");
-    
+
     if (prevSelectedId && Array.from(select.options).some(o => o.value === prevSelectedId)) {
         select.value = prevSelectedId;
     } else if (initialRolesLoad) {
@@ -2178,6 +2264,8 @@ initAdminForms();
                 loadPatients();
             } else if (activeTab === "branches") {
                 loadBranches();
+            } else if (activeTab === "departments") {
+                loadAdminDepartments();
             } else if (activeTab === "roles") {
                 loadRolesAndPermissions();
             } else if (activeTab === "notifications") {
@@ -2213,7 +2301,7 @@ async function loadRoleUsers() {
         console.error("Failed to load users", e);
         alert("Failed to load users from database: " + e.message);
     }
-    
+
     // Always try to load dropdowns even if users fail
     try {
         await populateRoleUserDropdowns();
@@ -2225,14 +2313,14 @@ async function loadRoleUsers() {
 function renderRoleUsers(users) {
     const tbody = document.getElementById("roleUsersTableBody");
     if (!tbody) return;
-    
+
     // Check if filtering is applied
     const search = document.getElementById("fUserSearch").value.toLowerCase();
     const role = document.getElementById("fUserRole").value;
     const branch = document.getElementById("fUserBranch").value;
     const department = document.getElementById("fUserDepartment").value;
     const status = document.getElementById("fUserStatus").value;
-    
+
     const filtered = users.filter(u => {
         if (search) {
             const nameMatch = (u.name || "").toLowerCase().includes(search);
@@ -2268,21 +2356,21 @@ async function populateRoleUserDropdowns() {
         const [rolesRes, branchesRes, deptsRes] = await Promise.all([
             adminApi("/admin/roles").catch(() => []),
             adminApi("/admin/branches").catch(() => []),
-            adminApi("/departments/all").catch(() => []) 
+            adminApi("/departments/all").catch(() => [])
         ]);
-        
+
         const roles = Array.isArray(rolesRes) ? rolesRes : (rolesRes.roles || []);
         const branches = Array.isArray(branchesRes) ? branchesRes : [];
         const depts = Array.isArray(deptsRes) ? deptsRes : (deptsRes.departments || []);
-        
+
         const roleOpts = `<option value="">Select Role</option>` + roles.map(r => `<option value="${r.id}">${r.name}</option>`).join("");
         const branchOpts = `<option value="">Select Branch</option>` + branches.map(b => `<option value="${b.id}">${b.name}</option>`).join("");
         const deptOpts = `<option value="">Select Department</option>` + depts.map(d => `<option value="${d.id}">${d.name}</option>`).join("");
-        
+
         document.getElementById("fUserRole").innerHTML = `<option value="">All Roles</option>` + roleOpts.replace('<option value="">Select Role</option>', '');
         document.getElementById("fUserBranch").innerHTML = `<option value="">All Branches</option>` + branchOpts.replace('<option value="">Select Branch</option>', '');
         document.getElementById("fUserDepartment").innerHTML = `<option value="">All Departments</option>` + deptOpts.replace('<option value="">Select Department</option>', '');
-        
+
         document.getElementById("userRoleField").innerHTML = roleOpts;
         document.getElementById("userBranchField").innerHTML = branchOpts;
         document.getElementById("userDepartmentField").innerHTML = deptOpts;
@@ -2313,18 +2401,18 @@ function openCreateUserModal() {
 function openEditUserModal(id) {
     const user = currentUsersData.find(u => u.id === id);
     if(!user) return;
-    
+
     document.getElementById("userForm").reset();
     document.getElementById("userIdField").value = user.id;
     document.getElementById("userNameField").value = user.name;
     document.getElementById("userEmailField").value = user.email;
     document.getElementById("userRoleField").value = user.role_id;
-    
+
     document.getElementById("userBranchField").value = user.branch_id || "";
     document.getElementById("userDepartmentField").value = user.department_id || "";
-    
+
     document.getElementById("userStatusField").value = user.is_active;
-    
+
     document.getElementById("userFormModalTitle").innerText = "Edit User";
     document.getElementById("userPasswordFieldContainer").hidden = true;
     document.getElementById("userConfirmPasswordFieldContainer").hidden = true;
@@ -2350,7 +2438,7 @@ async function submitUserForm(e) {
     e.preventDefault();
     const id = document.getElementById("userIdField").value;
     const isEdit = !!id;
-    
+
     const payload = {
         name: document.getElementById("userNameField").value,
         email: document.getElementById("userEmailField").value,
@@ -2358,7 +2446,7 @@ async function submitUserForm(e) {
         branch_id: document.getElementById("userBranchField").value ? parseInt(document.getElementById("userBranchField").value) : null,
         department_id: document.getElementById("userDepartmentField").value ? parseInt(document.getElementById("userDepartmentField").value) : null
     };
-    
+
     if (isEdit) {
         payload.is_active = parseInt(document.getElementById("userStatusField").value);
     } else {
@@ -2370,7 +2458,7 @@ async function submitUserForm(e) {
         }
         payload.password = p1;
     }
-    
+
     try {
         const method = isEdit ? "PUT" : "POST";
         const endpoint = isEdit ? `/admin/users/${id}` : "/admin/users";
@@ -2393,12 +2481,12 @@ async function submitChangePassword(e) {
     const id = document.getElementById("cpUserIdField").value;
     const p1 = document.getElementById("cpNewPasswordField").value;
     const p2 = document.getElementById("cpConfirmPasswordField").value;
-    
+
     if(p1 !== p2) {
         alert("Passwords do not match!");
         return;
     }
-    
+
     try {
         await adminApi(`/admin/users/${id}/password`, {
             method: "PUT",
@@ -2420,3 +2508,126 @@ window.openChangePasswordModal = openChangePasswordModal;
 window.submitChangePassword = submitChangePassword;
 window.handleUserRoleChange = handleUserRoleChange;
 window.handleUserBranchChange = handleUserBranchChange;
+
+// ---------------------------------------------------------------------------
+// Department Management
+// ---------------------------------------------------------------------------
+
+function showDepartmentForm(show) {
+  document.getElementById("departmentModal").hidden = !show;
+}
+
+document.getElementById("addDepartmentBtn")?.addEventListener("click", () => {
+  adminState.departmentEditId = null;
+  document.getElementById("departmentFormTitle").textContent = "Add new department";
+  document.getElementById("departmentForm").reset();
+  document.getElementById("departmentStatus").value = "ACTIVE";
+  document.getElementById("saveDepartmentButton").textContent = "Save department";
+  document.getElementById("cancelDepartmentEdit").hidden = true;
+  showDepartmentForm(true);
+});
+
+document.getElementById("closeDepartmentModal")?.addEventListener("click", () => showDepartmentForm(false));
+document.getElementById("cancelDepartmentEdit")?.addEventListener("click", () => showDepartmentForm(false));
+
+document.getElementById("departmentForm")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const payload = {
+    name: form.name.value.trim(),
+    description: form.description.value.trim() || null,
+    department_status: form.department_status.value
+  };
+
+  try {
+    if (adminState.departmentEditId) {
+      await adminApi(`/admin/departments/${adminState.departmentEditId}`, { method: "PUT", body: JSON.stringify(payload) });
+      alert("Department updated");
+    } else {
+      await adminApi("/admin/departments", { method: "POST", body: JSON.stringify(payload) });
+      alert("Department created");
+    }
+    showDepartmentForm(false);
+    await loadAdminDepartments();
+  } catch (err) {
+    alert(`Error: ${err.message}`);
+  }
+});
+
+async function loadAdminDepartments() {
+  const tbody = document.getElementById("departmentTableBody");
+  if (!tbody) return;
+  tbody.innerHTML = `<tr><td colspan="5" class="empty-note">Loading departments&hellip;</td></tr>`;
+  try {
+    const departments = await adminApi("/admin/departments");
+    adminState.departments = departments;
+    
+    if (!departments.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-note">No departments found</td></tr>`;
+      return;
+    }
+    renderDepartmentList(departments);
+  } catch (err) {
+    if (err.message !== "Unauthorized") {
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-note">Couldn't load departments: ${escapeHtml(err.message)}</td></tr>`;
+    }
+  }
+}
+
+function renderDepartmentList(departments) {
+  const tbody = document.getElementById("departmentTableBody");
+  if (!tbody) return;
+  tbody.innerHTML = departments
+    .map((d) => `
+      <tr>
+        <td>${d.id}</td>
+        <td>${escapeHtml(d.name)}</td>
+        <td>${escapeHtml(d.description || "-")}</td>
+        <td><span class="status-pill ${d.department_status}">${d.department_status}</span></td>
+        <td>
+          <button class="btn btn-ghost btn-small edit-department" data-id="${d.id}">Edit</button>
+          <button class="btn btn-ghost btn-small delete-department" data-id="${d.id}">Delete</button>
+        </td>
+      </tr>
+    `)
+    .join("");
+
+  tbody.querySelectorAll(".edit-department").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const dept = adminState.departments.find((d) => String(d.id) === String(btn.dataset.id));
+      if (!dept) { alert("Department not found."); return; }
+      adminState.departmentEditId = dept.id;
+      document.getElementById("departmentFormTitle").textContent = "Edit department";
+      document.getElementById("departmentName").value = dept.name;
+      document.getElementById("departmentDescription").value = dept.description || "";
+      document.getElementById("departmentStatus").value = dept.department_status;
+      document.getElementById("saveDepartmentButton").textContent = "Update department";
+      document.getElementById("cancelDepartmentEdit").hidden = false;
+      showDepartmentForm(true);
+    });
+  });
+
+  tbody.querySelectorAll(".delete-department").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      if (!confirm("Delete this department? It cannot be deleted if assigned to doctors.")) return;
+      try {
+        await adminApi(`/admin/departments/${btn.dataset.id}`, { method: "DELETE" });
+        await loadAdminDepartments();
+      } catch (err) {
+        alert(`Couldn't delete department: ${err.message}`);
+      }
+    });
+  });
+}
+
+document.getElementById("departmentSearch")?.addEventListener("input", (e) => {
+  const q = e.target.value.toLowerCase();
+  const filtered = adminState.departments.filter(d => 
+    d.name.toLowerCase().includes(q) || (d.description && d.description.toLowerCase().includes(q))
+  );
+  if (!filtered.length) {
+      document.getElementById("departmentTableBody").innerHTML = `<tr><td colspan="5" class="empty-note">No matching departments</td></tr>`;
+  } else {
+      renderDepartmentList(filtered);
+  }
+});

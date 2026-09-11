@@ -98,6 +98,18 @@ class BranchUpdateRequest(BaseModel):
     branch_status: Optional[str] = None
 
 
+class DepartmentCreateRequest(BaseModel):
+    name: str = Field(..., min_length=1)
+    description: Optional[str] = None
+    department_status: str
+
+
+class DepartmentUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    department_status: Optional[str] = None
+
+
 class DoctorStatusRequest(BaseModel):
     doctor_status: str
 
@@ -108,7 +120,7 @@ class DoctorCreateRequest(BaseModel):
     branch_id: int
     department_id: int
     qualification: str = Field(..., min_length=1)
-    fee: int = Field(..., ge=0)
+
     doctor_status: str
     mobile: Optional[str] = None
     email: Optional[str] = None
@@ -123,7 +135,6 @@ class DoctorUpdateRequest(BaseModel):
     branch_id: Optional[int] = None
     department_id: Optional[int] = None
     qualification: Optional[str] = None
-    fee: Optional[int] = Field(None, ge=0)
     doctor_status: Optional[str] = None
     mobile: Optional[str] = None
     email: Optional[str] = None
@@ -353,7 +364,10 @@ class Department(Base):
     __tablename__ = "departments"
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=False, unique=True)
-    base_fee = Column(Integer, nullable=False)
+    description = Column(Text, nullable=True)
+    department_status = Column(String(20), nullable=False, default='ACTIVE')
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
 
 class Doctor(Base):
@@ -363,7 +377,6 @@ class Doctor(Base):
     branch_id = Column(Integer, ForeignKey("branches.id"), nullable=False)
     department_id = Column(Integer, ForeignKey("departments.id"), nullable=False)
     qualification = Column(String(255), nullable=False)
-    fee = Column(Integer, nullable=False)
     doctor_status = Column(String(20), nullable=False, default='ACTIVE')
     doctor_code = Column(String(50), unique=True)
     mobile = Column(String(50))
@@ -493,7 +506,6 @@ class Appointment(Base):
     symptoms = Column(Text)
     appointment_date = Column(String(20), nullable=False)
     time_slot = Column(String(20), nullable=False)
-    fee = Column(Integer, nullable=False)
     status = Column(String(20), nullable=False, default='BOOKED')
     created_at = Column(DateTime, default=func.now())
 

@@ -23,8 +23,8 @@ const state = {
   step: 1,
   patient: { name: "", age: "", gender: "", mobile: "", email: "", address: "", reason: "" },
   branch: null,      // {id, name, address, phone}
-  department: null,  // {id, name, base_fee}
-  doctor: null,      // {id, name, qualification, fee}
+  department: null,
+  doctor: null,
   date: null,        // 'YYYY-MM-DD'
   dateMeta: null,    // {weekday, free_slots, ...}
   time: null,        // 'HH:MM'
@@ -343,9 +343,7 @@ async function loadDepartments(branchId) {
       card.innerHTML = `
         <div>
           <div class="pc-title">${escapeHtml(d.name)}</div>
-          <div class="pc-sub">Consultation base fee</div>
         </div>
-        <span class="pc-fee">&#8377;${d.base_fee}</span>
       `;
       card.addEventListener("click", () => selectDepartment(d, card));
       list.appendChild(card);
@@ -409,7 +407,6 @@ async function loadDoctors(branchId, departmentId) {
           <div class="pc-title">${escapeHtml(doc.name)}</div>
           <div class="pc-sub">${escapeHtml(doc.qualification)}</div>
         </div>
-        <span class="pc-fee">&#8377;${doc.fee}</span>
       `;
       card.addEventListener("click", () => selectDoctor(doc, card));
       list.appendChild(card);
@@ -540,7 +537,6 @@ function showSummary() {
     <div><div class="sc-label">Department</div><div class="sc-value">${escapeHtml(state.department.name)}</div></div>
     <div><div class="sc-label">Doctor</div><div class="sc-value">${escapeHtml(state.doctor.name)}</div></div>
     <div><div class="sc-label">Date &amp; Time</div><div class="sc-value">${formatDate(state.date)} &bull; ${formatTime(state.time)}</div></div>
-    <div class="sc-fee"><div><div class="sc-label">Total Payable Fee</div></div><div class="sc-value">&#8377;${state.doctor.fee}</div></div>
   `;
   document.getElementById("bookError").hidden = true;
   block.hidden = false;
@@ -580,13 +576,12 @@ function showConflict(alternatives) {
 
     alternatives.alternative_doctors.forEach((altDoc) => {
       altDoc.available_slots.forEach((slotTime) => {
-        addBtn(`Dr. ${altDoc.name} @ ${formatTime(slotTime)} (Fee: ₹${altDoc.fee})`, () => {
+        addBtn(`Dr. ${altDoc.name} @ ${formatTime(slotTime)}`, () => {
           hideConflict();
           state.doctor = {
             id: altDoc.id,
             name: altDoc.name,
-            qualification: altDoc.qualification,
-            fee: altDoc.fee,
+            qualification: altDoc.qualification
           };
           selectDoctor(state.doctor, null);
           selectSlot(slotTime, null);
@@ -703,7 +698,7 @@ function renderTicket(result) {
       <div><div class="tg-label">Doctor</div><div class="tg-value">${escapeHtml(s.doctor)}</div></div>
       <div><div class="tg-label">Department</div><div class="tg-value">${escapeHtml(s.department)}</div></div>
       <div><div class="tg-label">Branch</div><div class="tg-value">${escapeHtml(s.branch)}</div></div>
-      <div><div class="tg-label">Fee Paid</div><div class="tg-value mono">&#8377;${s.fee}</div></div>
+
       <div><div class="tg-label">Date</div><div class="tg-value">${formatDate(s.date)}</div></div>
       <div><div class="tg-label">Time</div><div class="tg-value mono">${formatTime(s.time)}</div></div>
     </div>
@@ -823,6 +818,7 @@ if (whatsappFab) {
 /* ---- AI Webchat ---- */
 
 let chatSessionId = null;
+let chatHasOpened = false;
 
 const aiChatFab = document.getElementById("aiChatFab");
 const aiChatPanel = document.getElementById("aiChatPanel");
@@ -831,6 +827,56 @@ const aiChatBody = document.getElementById("aiChatBody");
 const aiChatInput = document.getElementById("aiChatInput");
 const aiChatSend = document.getElementById("aiChatSend");
 const aiChatInputRow = document.getElementById("aiChatInputRow");
+const chatFabBadge = document.getElementById("chatFabBadge");
+
+/* ---- Proactive nudge toast ----
+   Shows a "book now" prompt ~6s after page load (once per browser
+   session), auto-hides itself after ~9s if ignored, and opens the
+   chat panel if the visitor taps it. */
+const chatToast = document.getElementById("chatToast");
+const chatToastClose = document.getElementById("chatToastClose");
+const chatToastCta = document.getElementById("chatToastCta");
+const chatToastRow = document.querySelector(".chat-toast-row");
+
+const TOAST_SHOW_DELAY_MS = 6000;
+const TOAST_AUTO_HIDE_MS = 9000;
+const TOAST_SESSION_KEY = "varuvi_chat_toast_shown";
+
+let toastHideTimer = null;
+
+function hideChatToast() {
+  if (!chatToast || chatToast.hidden) return;
+  chatToast.classList.add("is-leaving");
+  window.clearTimeout(toastHideTimer);
+  window.setTimeout(() => {
+    chatToast.hidden = true;
+    chatToast.classList.remove("is-leaving");
+  }, 280);
+}
+
+function showChatToast() {
+  if (!chatToast || chatHasOpened) return;
+  try {
+    if (sessionStorage.getItem(TOAST_SESSION_KEY)) return;
+    sessionStorage.setItem(TOAST_SESSION_KEY, "1");
+  } catch (_) { /* storage unavailable — still fine to show once */ }
+
+  chatToast.hidden = false;
+  if (chatFabBadge) chatFabBadge.hidden = false;
+  toastHideTimer = window.setTimeout(hideChatToast, TOAST_AUTO_HIDE_MS);
+}
+
+window.setTimeout(showChatToast, TOAST_SHOW_DELAY_MS);
+
+if (chatToastClose) {
+  chatToastClose.addEventListener("click", hideChatToast);
+}
+function openChatFromToast() {
+  hideChatToast();
+  openAiChatPanel();
+}
+if (chatToastRow) chatToastRow.addEventListener("click", openChatFromToast);
+if (chatToastCta) chatToastCta.addEventListener("click", openChatFromToast);
 
 function renderChatMarkdown(text) {
   if (!text) return "";
@@ -863,7 +909,40 @@ function ensureChatSession() {
   return chatSessionId;
 }
 
+/* ---- Timestamps & date dividers (WhatsApp/Messenger style) ---- */
+
+let lastDividerKey = null;
+
+function formatMsgTime(date) {
+  return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+
+function formatDateLabel(date) {
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+  const sameDay = (a, b) => a.toDateString() === b.toDateString();
+  if (sameDay(date, today)) return "Today";
+  if (sameDay(date, yesterday)) return "Yesterday";
+  return date.toLocaleDateString([], { day: "numeric", month: "short", year: "numeric" });
+}
+
+function maybeInsertDateDivider() {
+  const now = new Date();
+  const key = now.toDateString();
+  if (key === lastDividerKey) return;
+  lastDividerKey = key;
+  const divider = document.createElement("div");
+  divider.className = "chat-date-divider";
+  const pill = document.createElement("span");
+  pill.textContent = formatDateLabel(now);
+  divider.appendChild(pill);
+  aiChatBody.appendChild(divider);
+}
+
 function appendChatBubble(text, sender) {
+  maybeInsertDateDivider();
+
   const bubble = document.createElement("div");
   bubble.className = `chat-bubble chat-bubble-${sender}`;
   if (sender === "bot") {
@@ -877,8 +956,19 @@ function appendChatBubble(text, sender) {
       a.setAttribute("rel", "noopener noreferrer");
     });
   } else {
-    bubble.textContent = text;
+    const textEl = document.createElement("span");
+    textEl.className = "chat-bubble-text";
+    textEl.textContent = text;
+    bubble.appendChild(textEl);
   }
+
+  // Send time (user) / response time (bot) shown inside the bubble,
+  // bottom-right — same pattern as WhatsApp and Messenger.
+  const meta = document.createElement("div");
+  meta.className = "chat-bubble-meta";
+  meta.textContent = formatMsgTime(new Date());
+  bubble.appendChild(meta);
+
   aiChatBody.appendChild(bubble);
   aiChatBody.scrollTop = aiChatBody.scrollHeight;
   return bubble;
@@ -956,6 +1046,7 @@ async function sendChatTurn(payloadExtra, userLabel) {
 
 async function startNewChat() {
   aiChatBody.innerHTML = "";
+  lastDividerKey = null;
   aiChatInputRow.hidden = true;
   try {
     const res = await fetch(`${API_BASE}/chat/webchat/reset`, {
@@ -978,14 +1069,20 @@ function submitChatText() {
   sendChatTurn({ message: val }, val);
 }
 
+function openAiChatPanel() {
+  if (!aiChatPanel) return;
+  chatHasOpened = true;
+  hideChatToast();
+  if (chatFabBadge) chatFabBadge.hidden = true;
+  aiChatPanel.hidden = false;
+  aiChatFab.setAttribute("aria-expanded", "true");
+  if (!aiChatBody.childElementCount) {
+    startNewChat();
+  }
+}
+
 if (aiChatFab) {
-  aiChatFab.addEventListener("click", () => {
-    aiChatPanel.hidden = false;
-    aiChatFab.setAttribute("aria-expanded", "true");
-    if (!aiChatBody.childElementCount) {
-      startNewChat();
-    }
-  });
+  aiChatFab.addEventListener("click", openAiChatPanel);
 }
 if (aiChatClose) {
   aiChatClose.addEventListener("click", () => {

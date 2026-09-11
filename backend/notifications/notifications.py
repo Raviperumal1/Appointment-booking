@@ -87,7 +87,7 @@ def booking_confirmed_messages(details: dict) -> dict:
     sms = (
         f"Varuvi: Appointment confirmed! Code {details['code']}. "
         f"{details['doctor']} ({details['branch']}) on {details['date']} at {details['time']}. "
-        f"Fee: Rs.{details['fee']}. Please arrive 10 min early."
+        f"Please arrive 10 min early."
     )
     subject = f"Appointment Confirmed — {details['code']}"
     body = (
@@ -97,7 +97,7 @@ def booking_confirmed_messages(details: dict) -> dict:
         f"Doctor           : {details['doctor']} ({details['department']})\n"
         f"Branch           : {details['branch']}\n"
         f"Date & time      : {details['date']} at {details['time']}\n"
-        f"Consultation fee : Rs.{details['fee']}\n\n"
+
         f"Please arrive 10 minutes early with any previous prescriptions or reports.\n"
         f"To cancel or reschedule, use your appointment code and mobile number on the "
         f"'Manage your booking' page.\n\n"
@@ -139,7 +139,7 @@ def booking_rescheduled_messages(details: dict) -> dict:
         f"Branch           : {details['branch']}\n"
         f"Previous slot    : {details['old_date']} at {details['old_time']}\n"
         f"New slot         : {details['date']} at {details['time']}\n"
-        f"Consultation fee : Rs.{details['fee']}\n\n"
+
         f"— Varuvi"
     )
     return {"sms": sms, "subject": subject, "body": body}

@@ -172,11 +172,9 @@ TRANSLATIONS = {
 
     "ask_name_intro": {
         "en": (
-            "Got it! Let's collect the patient's details first.\n\n"
             "What is the patient's *full name*?"
         ),
         "ta": (
-            "சரி! முதலில் நோயாளியின் விவரங்களைப் பார்ப்போம்.\n\n"
             "நோயாளியின் *முழுப் பெயர்* என்ன?"
         ),
     },
@@ -459,7 +457,6 @@ TRANSLATIONS = {
             "Doctor: *{doctor}* ({department})\n"
             "Branch: *{branch}*\n"
             "Date & Time: *{date}* at *{time}*\n"
-            "Fee: *₹{fee}*\n\n"
             "A confirmation has been sent to your number. See you then! 🙌\n\n"
             "Type *menu* anytime to book another appointment."
         ),
@@ -470,7 +467,6 @@ TRANSLATIONS = {
             "மருத்துவர்: *{doctor}* ({department})\n"
             "கிளை: *{branch}*\n"
             "தேதி & நேரம்: *{date}* *{time}*\n"
-            "கட்டணம்: *₹{fee}*\n\n"
             "உறுதிப்படுத்தல் உங்கள் எண்ணுக்கு அனுப்பப்பட்டுள்ளது. 🙌\n\n"
             "மற்றொரு முன்பதிவுக்கு *menu* என அனுப்பவும்."
         ),

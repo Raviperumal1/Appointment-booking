@@ -516,7 +516,7 @@ def _h_confirm(session, text, option_id, contact_phone):
     return _reply(
         t(session, "booking_success",
           code=result["appointment_code"], patient=s["patient_name"], doctor=s["doctor"],
-          department=s["department"], branch=s["branch"], date=s["date"], time=s["time"], fee=s["fee"]),
+          department=s["department"], branch=s["branch"], date=s["date"], time=s["time"]),
         options=_menu_options(session),
         done=True,
     )
