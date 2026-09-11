@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Varuvi Admin &mdash; Bookings Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+<script src="https://cdn.jsdelivr.net/npm/marked@15.0.7/lib/marked.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+</head>
+<body>
+
+<!-- ============ Login screen ============ -->
+<div class="login-shell" id="loginShell">
+  <form class="login-card" id="loginForm">
+    <div class="login-pulse">
+      <svg viewBox="0 0 32 32" width="22" height="22"><path d="M2 17 H9 L12 9 L17 24 L20 12 L22 17 H30" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="login-brand">
+      <span>Varuvi Admin</span>
+    </div>
+    <p class="login-sub">Staff sign-in required to view and manage bookings.</p>
+    <label class="field">
+      <span>Username</span>
+      <input type="text" id="adminUsername" autocomplete="username" required>
+    </label>
+    <label class="field">
+      <span>Password</span>
+      <input type="password" id="adminPassword" autocomplete="current-password" required>
+    </label>
+    <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+    <div class="login-error" id="loginError" hidden></div>
+  </form>
+</div>
+
+<!-- ============ Dashboard ============ -->
+<div id="adminShell" hidden>
+  <div class="admin-layout" id="adminLayout">
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- ---------------- Sidebar ---------------- -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-head">
+        <div class="brand-mark">
+          <svg viewBox="0 0 32 32" width="20" height="20">
+            <path class="pulse-path" d="M2 17 H9 L12 9 L17 24 L20 12 L22 17 H30" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="sidebar-heading">
+          <p class="brand-name">Varuvi</p>
+
+        </div>
+        <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar">
+          <svg class="toggle-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+            <line x1="4" y1="5" x2="4" y2="19"></line>
+          </svg>
+        </button>
+      </div>
+
+
+      <nav class="sidebar-nav">
+        <button type="button" class="nav-item active" data-tab="booking" title="Bookings">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span class="nav-label">Bookings</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="doctors" title="Doctors">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 2v3a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V2"></path>
+            <path d="M6 9c0-1.7 1.3-3 3-3h6c1.7 0 3 1.3 3 3v9a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3z"></path>
+            <path d="M12 12v5"></path>
+            <path d="M9.5 14.5h5"></path>
+          </svg>
+          <span class="nav-label">Doctors</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="branches" title="Branches">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18"></path>
+            <path d="M5 21V7l7-4 7 4v14"></path>
+            <path d="M9 21v-6h6v6"></path>
+            <path d="M9 10h.01"></path>
+            <path d="M15 10h.01"></path>
+          </svg>
+          <span class="nav-label">Branches</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="patients" title="Registered Patients">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span class="nav-label">Patients</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="conversations" title="Conversations">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+          </svg>
+          <span class="nav-label">Conversations</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="notifications" title="Notifications">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span class="nav-label">Notifications</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="role-users" id="navRoleUsers" title="Role Users" style="display: none;">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span class="nav-label">Role Users</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="roles" title="Roles & Permissions">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          <span class="nav-label">Roles & Permissions</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="sidebarAvatar">A</div>
+          <div class="user-meta">
+            <span class="user-name" id="sidebarUserName">Admin</span>
+            <span class="user-role">Staff account</span>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-block" id="logoutBtn"><span>Sign out</span></button>
+      </div>
+    </aside>
+
+    <!-- ---------------- Main Content ---------------- -->
+    <main class="admin-main" id="adminMain">
+
+      <header class="content-header">
+        <button type="button" class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <div class="header-titles">
+          <h1 class="page-title" id="pageTitle">Bookings</h1>
+          <p class="page-sub" id="pageSub">Live appointment activity across every branch</p>
+        </div>
+        <div class="header-spacer"></div>
+        <div class="header-date-chip" id="headerDate"></div>
+      </header>
+
+      <div class="content-body">
+
+        <!-- ============ Bookings tab ============ -->
+        <section class="tab-panel active" id="bookingTab">
+          <section class="stat-grid" id="statGrid">
+            <div class="loading">Loading stats&hellip;</div>
+          </section>
+
+          <section class="breakdown-grid">
+            <div class="breakdown-card">
+              <h3>Bookings by branch</h3>
+              <div id="byBranch" class="breakdown-list"></div>
+            </div>
+            <div class="breakdown-card">
+              <h3>Bookings by department</h3>
+              <div id="byDepartment" class="breakdown-list"></div>
+            </div>
+            <div class="breakdown-card">
+              <h3>Busiest doctors</h3>
+              <div id="topDoctors" class="breakdown-list"></div>
+            </div>
+          </section>
+
+          <section class="filter-bar">
+            <input type="text" id="fSearch" placeholder="Search name, mobile, or code">
+            <select id="fStatus">
+              <option value="">All statuses</option>
+              <option value="BOOKED">Booked</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+            <select id="fBranch"><option value="">All branches</option></select>
+            <select id="fDepartment"><option value="">All departments</option></select>
+            <input type="date" id="fDateFrom">
+            <input type="date" id="fDateTo">
+
+          </section>
+
+          <section class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Patient</th>
+                  <th>Mobile</th>
+                  <th>Branch</th>
+                  <th>Department</th>
+                  <th>Doctor</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Fee</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+                <tr><td colspan="11" class="loading">Loading bookings&hellip;</td></tr>
+              </tbody>
+            </table>
+          </section>
+
+          <section class="pagination">
+            <button class="btn btn-ghost btn-small" id="prevPage">&larr; Prev</button>
+            <span id="pageInfo"></span>
+            <button class="btn btn-ghost btn-small" id="nextPage">Next &rarr;</button>
+          </section>
+        </section>
+
+        <!-- ============ Doctors tab ============ -->
+        <section class="tab-panel" id="doctorsTab">
+          <div class="section-header">
+            <div>
+              <h3>Doctor management</h3>
+              <p class="section-sub">Create, edit, remove doctors, and update their public availability.</p>
+            </div>
+            <div class="section-actions">
+              <button class="btn btn-primary" type="button" id="addDoctorBtn">Add doctor</button>
+              <button class="btn btn-ghost" id="refreshDoctors">Refresh</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="admin-table" id="doctorTable">
+              <thead>
+                <tr>
+                  <th>Doctor</th>
+                  <th>Type</th>
+                  <th>Branch</th>
+                  <th>Department</th>
+                  <th>Qualification</th>
+                  <th>Fee</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="doctorTableBody">
+                <tr><td colspan="8" class="loading">Loading doctors&hellip;</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ============ Branches tab ============ -->
+        <section class="tab-panel" id="branchesTab">
+          <div class="section-header">
+            <div>
+              <h3>Branch management</h3>
+              <p class="section-sub">Create, edit, remove branches, and inspect doctors by branch.</p>
+            </div>
+            <div class="section-actions">
+              <button class="btn btn-primary" type="button" id="addBranchBtn">Add branch</button>
+              <button class="btn btn-ghost" id="refreshBranches">Refresh</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="admin-table" id="branchTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Address</th>
+                  <th>Phone</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="branchTableBody">
+                <tr><td colspan="5" class="loading">Loading branches&hellip;</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section-header" style="margin-top:28px;">
+            <div>
+              <h3>Doctors by Branch</h3>
+              <p class="section-sub">Inspect specialists assigned to a specific branch.</p>
+            </div>
+            <div class="section-actions">
+              <select id="branchSelect" class="status-select" style="min-width:220px">
+                <option value="">Loading branches&hellip;</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Doctor</th>
+                  <th>Type</th>
+                  <th>Branch</th>
+                  <th>Department</th>
+                  <th>Qualification</th>
+                  <th>Fee</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="branchDoctorTableBody">
+                <tr><td colspan="8" class="empty-note">Select a branch above.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ============ Patients tab ============ -->
+        <section class="tab-panel" id="patientsTab">
+          <div class="section-header">
+
+            <div class="section-actions">
+              <button class="btn btn-ghost" id="exportPatientsCsv">Export CSV</button>
+              <button class="btn btn-ghost" id="exportPatientsXlsx">Export Excel</button>
+              <label class="btn btn-primary" for="patientImportFile">Import CSV / Excel</label>
+              <input id="patientImportFile" type="file" accept=".csv,.xlsx" hidden>
+              <button class="btn btn-ghost" id="refreshPatients">Refresh</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="admin-table" id="patientTable">
+              <thead>
+                <tr>
+                  <th>UHID</th>
+                  <th>Name</th>
+                  <th>Mobile</th>
+                  <th>Gender</th>
+                  <th>DOB</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="patientTableBody">
+                <tr><td colspan="6" class="loading">Loading patients&hellip;</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ============ Conversations tab ============ -->
+        <section class="tab-panel" id="conversationsTab">
+          <div class="section-header">
+            <div>
+              <h3>Conversation history</h3>
+              <p class="section-sub">Every chat across the website widget, WhatsApp bot, and AI chatbot, in one place.</p>
+            </div>
+            <div class="section-actions">
+              <select id="fConvSource" class="status-select" style="min-width:180px">
+                <option value="">All sources</option>
+                <option value="WEB">Website widget</option>
+                <option value="WHATSAPP">WhatsApp bot</option>
+                <option value="CHATBOT">AI chatbot</option>
+              </select>
+              <button class="btn btn-ghost" id="refreshConversations">Refresh</button>
+            </div>
+          </div>
+
+          <section class="filter-bar">
+            <input type="text" id="fConvSearch" placeholder="Search name or mobile">
+
+          </section>
+
+          <div class="table-wrap">
+            <table class="admin-table" id="conversationTable">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Mobile</th>
+                  <th>Source</th>
+                  <th>Last message</th>
+                  <th>Messages</th>
+                  <th>Last activity</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="conversationTableBody">
+                <tr><td colspan="7" class="loading">Loading conversations&hellip;</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ============ Notifications tab ============ -->
+        <section class="tab-panel" id="notificationsTab">
+
+
+          <form id="notificationConfigForm">
+            <div class="breakdown-grid" style="grid-template-columns: 1fr 1fr; margin-top: 20px; align-items: start;">
+              <div class="breakdown-card">
+                <h3>SMS (Twilio)</h3>
+                <div class="form-grid" style="margin-top:15px">
+                  <div class="field">
+                    <label>Account SID</label>
+                    <input id="configTwilioSid" name="twilio_account_sid">
+                  </div>
+                  <div class="field">
+                    <label>Auth Token</label>
+                    <input type="password" id="configTwilioAuth" name="twilio_auth_token">
+                  </div>
+                  <div class="field">
+                    <label>From Number</label>
+                    <input id="configTwilioFrom" name="twilio_from_number">
+                  </div>
+                </div>
+              </div>
+
+              <div class="breakdown-card">
+                <h3>Email (SMTP)</h3>
+                <div class="form-grid" style="margin-top:15px">
+                  <div class="field">
+                    <label>SMTP Host</label>
+                    <input id="configSmtpHost" name="smtp_host">
+                  </div>
+                  <div class="field">
+                    <label>SMTP Port</label>
+                    <input id="configSmtpPort" name="smtp_port">
+                  </div>
+                  <div class="field">
+                    <label>SMTP Username</label>
+                    <input id="configSmtpUser" name="smtp_username">
+                  </div>
+                  <div class="field">
+                    <label>SMTP Password</label>
+                    <input type="password" id="configSmtpPass" name="smtp_password">
+                  </div>
+                  <div class="field">
+                    <label>From Email</label>
+                    <input id="configSmtpFrom" name="smtp_from">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions" style="margin-top: 20px; justify-content: flex-end; display: flex; gap: 10px;">
+              <button type="submit" class="btn btn-primary" id="saveNotificationConfigButton">Save Config</button>
+            </div>
+          </form>
+
+          <!-- ============ WhatsApp Cloud API ============ -->
+          <form id="whatsappConfigForm" style="margin-top: 28px;">
+            <div class="section-heading-row" style="margin-bottom: 4px;">
+              <h3 style="margin:0;">WhatsApp Cloud API</h3>
+            </div>
+            <p class="panel-sub" style="margin-top:2px;">
+              Credentials for the WhatsApp Cloud API bot (separate from the Twilio SMS
+              fallback above). These come from your Meta developer app's WhatsApp product page.
+            </p>
+
+            <div class="breakdown-card" style="margin-top:14px;">
+              <div class="form-grid">
+                <div class="field">
+                  <label>Access token</label>
+                  <input type="password" id="configWhatsappToken" name="access_token" placeholder="Permanent or temporary access token" autocomplete="off">
+                </div>
+                <div class="field">
+                  <label>Phone number ID</label>
+                  <input id="configWhatsappPhoneId" name="phone_number_id" placeholder="e.g. 109876543210123">
+                </div>
+                <div class="field">
+                  <label>Business account ID</label>
+                  <input id="configWhatsappBizId" name="business_account_id" placeholder="e.g. 987654321098765">
+                </div>
+                <div class="field">
+                  <label>Webhook verify token</label>
+                  <input id="configWhatsappVerifyToken" name="verify_token" placeholder="Custom string you set on the Meta webhook config">
+                </div>
+                <div class="field">
+                  <label>Graph API version</label>
+                  <input id="configWhatsappApiVersion" name="api_version" placeholder="e.g. v20.0">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions" style="margin-top: 20px; justify-content: flex-end; display: flex; gap: 10px;">
+              <button type="submit" class="btn btn-primary" id="saveWhatsappConfigButton">Save WhatsApp Config</button>
+            </div>
+          </form>
+
+          <!-- ============ AI Provider (Chatbot) API keys ============ -->
+          <form id="aiProviderConfigForm" style="margin-top: 28px;">
+            <div class="section-heading-row" style="margin-bottom: 4px;">
+              <h3 style="margin:0;">AI Provider (Chatbot)</h3>
+            </div>
+            <p class="panel-sub" style="margin-top:2px;">
+              API keys and model names for the AI providers the chatbot can use. The key for
+              the selected active provider is what the assistant will actually call.
+            </p>
+
+            <div class="breakdown-card" style="margin-top:14px;">
+              <div class="form-grid">
+                <div class="field">
+                  <label>Active provider</label>
+                  <select id="aiActiveProvider" name="active_provider">
+                    <option value="gemini">Gemini</option>
+                    <option value="claude">Claude</option>
+                    <option value="openai">OpenAI</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="breakdown-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 14px; align-items: start;">
+              <div class="breakdown-card">
+                <h3>Gemini</h3>
+                <div class="form-grid" style="margin-top:15px">
+                  <div class="field">
+                    <label>API Key</label>
+                    <input type="password" id="aiGeminiKey" name="gemini_api_key" placeholder="AIza…" autocomplete="off">
+                  </div>
+                  <div class="field">
+                    <label>Model name</label>
+                    <input id="aiGeminiModel" name="gemini_model" placeholder="e.g. gemini-2.5-flash">
+                  </div>
+                </div>
+              </div>
+
+              <div class="breakdown-card">
+                <h3>Claude</h3>
+                <div class="form-grid" style="margin-top:15px">
+                  <div class="field">
+                    <label>API Key</label>
+                    <input type="password" id="aiClaudeKey" name="claude_api_key" placeholder="sk-ant-…" autocomplete="off">
+                  </div>
+                  <div class="field">
+                    <label>Model name</label>
+                    <input id="aiClaudeModel" name="claude_model" placeholder="e.g. claude-sonnet-4-6">
+                  </div>
+                </div>
+              </div>
+
+              <div class="breakdown-card">
+                <h3>OpenAI</h3>
+                <div class="form-grid" style="margin-top:15px">
+                  <div class="field">
+                    <label>API Key</label>
+                    <input type="password" id="aiOpenaiKey" name="openai_api_key" placeholder="sk-…" autocomplete="off">
+                  </div>
+                  <div class="field">
+                    <label>Model name</label>
+                    <input id="aiOpenaiModel" name="openai_model" placeholder="e.g. gpt-4o">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions" style="margin-top: 20px; justify-content: flex-end; display: flex; gap: 10px;">
+              <button type="submit" class="btn btn-primary" id="saveAiProviderConfigButton">Save AI Provider Config</button>
+            </div>
+          </form>
+        </section>
+
+        <!-- ============ Role Users tab ============ -->
+        <section class="tab-panel" id="role-usersTab">
+          <div class="section-header">
+            <div>
+              <h3>Role Users</h3>
+              <p class="section-sub">Manage staff accounts and their access roles.</p>
+            </div>
+            <div class="section-actions">
+              <button class="btn btn-primary" onclick="openCreateUserModal()">+ Create New User</button>
+            </div>
+          </div>
+
+          <section class="filter-bar">
+            <input type="text" id="fUserSearch" placeholder="Search name or email...">
+            <select id="fUserRole"><option value="">All Roles</option></select>
+            <select id="fUserBranch"><option value="">All Branches</option></select>
+            <select id="fUserDepartment"><option value="">All Departments</option></select>
+            <select id="fUserStatus">
+              <option value="">All Status</option>
+              <option value="1">Active</option>
+              <option value="0">Inactive</option>
+            </select>
+
+          </section>
+
+          <section class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Branch</th>
+                  <th>Department</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="roleUsersTableBody">
+                <!-- Users will be populated here -->
+              </tbody>
+            </table>
+          </section>
+        </section>
+
+        <!-- ============ Roles & Permissions tab ============ -->
+        <section class="tab-panel" id="rolesTab">
+          <div class="section-header">
+            <div>
+              <h3>Roles & Permissions</h3>
+              <p class="section-sub">Manage system access and configure custom roles.</p>
+            </div>
+            <div class="section-actions">
+              <button class="btn btn-primary" type="button" id="createRoleBtn">+ Create Role</button>
+              <button class="btn btn-ghost" id="refreshRolesBtn">Refresh</button>
+            </div>
+          </div>
+
+          <div class="breakdown-card" style="margin-top: 20px;">
+            <div class="section-heading-row">
+              <h4>Role Management</h4>
+            </div>
+            <div class="form-grid" style="margin-top: 15px; align-items: end;">
+              <div class="field" style="max-width: 300px;">
+                <label for="roleSelect">Select Role</label>
+                <select id="roleSelect">
+                  <option value="">Loading roles...</option>
+                </select>
+              </div>
+              <div id="roleInfoDisplay" style="margin-bottom: 10px; font-size: 0.9em; color: var(--text-muted);">
+                <!-- Role info will be shown here -->
+              </div>
+            </div>
+          </div>
+
+          <form id="rolePermissionsForm" style="margin-top: 20px;" hidden>
+            <div class="section-heading-row" style="margin-bottom: 15px;">
+              <h4>Permissions</h4>
+              <div class="section-actions">
+                <button type="button" class="btn btn-ghost btn-small" id="selectAllPermsBtn">Select All</button>
+                <button type="button" class="btn btn-ghost btn-small" id="clearAllPermsBtn">Clear All</button>
+              </div>
+            </div>
+            
+            <div id="permissionsContainer">
+               <!-- Grouped permissions injected here -->
+            </div>
+            
+            <div class="form-actions" style="margin-top: 20px; justify-content: flex-end; display: flex; gap: 10px;">
+              <button type="button" class="btn btn-ghost" id="resetRoleChangesBtn">Reset Changes</button>
+              <button type="submit" class="btn btn-primary" id="saveRoleChangesBtn">Save Changes</button>
+            </div>
+          </form>
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<!-- ============ MODALS / POPOVERS ============ -->
+
+<!-- Doctor Form Popover Modal -->
+<div class="modal-overlay" id="doctorScheduleModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Manage Schedule: <span id="scheduleDoctorName"></span></h3>
+      <button class="icon-btn" id="closeDoctorScheduleModal" aria-label="Close modal">
+        <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="display: flex; flex-direction: column; gap: 24px;">
+      
+      <!-- Regular Schedule Section -->
+      <div>
+        <h4 style="margin-top: 0; margin-bottom: 12px; color: var(--teal-deep);">Weekly Schedule</h4>
+        <div class="table-wrap" style="margin-bottom: 12px;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="weeklyScheduleTableBody">
+              <tr><td colspan="4" class="empty-note">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <form id="addWeeklyScheduleForm" style="display: flex; gap: 8px; align-items: flex-end;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Day</label>
+            <select class="form-input" id="schedDayOfWeek" required>
+              <option value="0">Monday</option>
+              <option value="1">Tuesday</option>
+              <option value="2">Wednesday</option>
+              <option value="3">Thursday</option>
+              <option value="4">Friday</option>
+              <option value="5">Saturday</option>
+              <option value="6">Sunday</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Start Time</label>
+            <input type="time" class="form-input" id="schedStartTime" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">End Time</label>
+            <input type="time" class="form-input" id="schedEndTime" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="height: 38px;">Add</button>
+        </form>
+      </div>
+
+      <hr style="border: 0; height: 1px; background: var(--line-soft);">
+
+      <!-- Special Availability Section -->
+      <div>
+        <h4 style="margin-top: 0; margin-bottom: 12px; color: var(--teal-deep);">Special Availability / Time Off</h4>
+        <div class="table-wrap" style="margin-bottom: 12px;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Hours</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="specialAvailabilityTableBody">
+              <tr><td colspan="4" class="empty-note">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <form id="addSpecialAvailabilityForm" style="display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-input" id="specialDate" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Start Time</label>
+            <input type="time" class="form-input" id="specialStartTime">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">End Time</label>
+            <input type="time" class="form-input" id="specialEndTime">
+          </div>
+          <div class="form-group checkbox-group" style="margin-bottom: 0; align-items: center; display: flex; height: 38px; gap: 6px;">
+            <input type="checkbox" id="specialIsBlocked">
+            <label for="specialIsBlocked" style="margin:0; font-size: 13.5px;">Mark as blocked (Time Off)</label>
+          </div>
+          <button type="submit" class="btn btn-primary" style="height: 38px; margin-left: auto;">Add</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="doctorModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h4 id="doctorFormTitle">Add new doctor</h4>
+      <button type="button" class="modal-close" id="closeDoctorModal">&times;</button>
+    </div>
+    <form id="doctorForm">
+      <div class="form-grid">
+        <div class="field">
+          <label for="doctorCode">Doctor ID</label>
+          <input id="doctorCode" name="doctor_code" placeholder="e.g. DOC001" />
+        </div>
+        <div class="field">
+          <label for="doctorName">Name</label>
+          <input id="doctorName" name="name" required />
+        </div>
+        <div class="field">
+          <label for="doctorBranch">Branch</label>
+          <select id="doctorBranch" name="branch_id" required></select>
+        </div>
+        <div class="field">
+          <label for="doctorDepartment">Department</label>
+          <select id="doctorDepartment" name="department_id" required></select>
+        </div>
+        <div class="field">
+          <label for="doctorQualification">Qualification</label>
+          <input id="doctorQualification" name="qualification" required />
+        </div>
+        <div class="field">
+          <label for="doctorMobile">Mobile number</label>
+          <input id="doctorMobile" name="mobile" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label for="doctorEmail">Email</label>
+          <input id="doctorEmail" name="email" type="email" />
+        </div>
+        <div class="field">
+          <label for="doctorType">Type</label>
+          <select id="doctorType" name="doctor_type"><option value="REGULAR">REGULAR</option><option value="SPECIAL">SPECIAL</option></select>
+        </div>
+        <div class="field">
+          <label for="doctorDuration">Consultation duration (minutes)</label>
+          <input id="doctorDuration" name="consultation_duration" type="number" min="5" value="30" required />
+        </div>
+        <div class="field">
+          <label for="doctorFee">Fee</label>
+          <input id="doctorFee" name="fee" type="number" min="0" required />
+        </div>
+        <div class="field">
+          <label for="doctorStatus">Status</label>
+          <select id="doctorStatus" name="doctor_status" required>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="INACTIVE">INACTIVE</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" id="cancelDoctorEdit">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="saveDoctorButton">Save doctor</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Create Role Modal -->
+<div class="modal-overlay" id="createRoleModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h4>Create Custom Role</h4>
+      <button type="button" class="modal-close" id="closeCreateRoleModal">&times;</button>
+    </div>
+    <form id="createRoleForm">
+      <div class="form-grid">
+        <div class="field">
+          <label for="newRoleName">Role Name</label>
+          <input id="newRoleName" name="name" placeholder="e.g. PHARMACY" required />
+        </div>
+        <div class="field" style="grid-column: 1 / -1;">
+          <label for="newRoleDesc">Description (Optional)</label>
+          <input id="newRoleDesc" name="description" placeholder="Short description of this role" />
+        </div>
+      </div>
+      
+      <div class="field" style="margin-top: 15px;">
+        <label>Select Initial Permissions</label>
+        <div id="newRolePermissionsContainer" style="max-height: 250px; overflow-y: auto; padding-right: 10px; border: 1px solid var(--border); border-radius: 6px; padding: 10px;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="form-actions" style="margin-top: 20px;">
+        <button type="button" class="btn btn-ghost" id="cancelCreateRoleBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create Role</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Branch Form Popover Modal -->
+<div class="modal-overlay" id="branchModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h4 id="branchFormTitle">Add new branch</h4>
+      <button type="button" class="modal-close" id="closeBranchModal">&times;</button>
+    </div>
+    <form id="branchForm">
+      <div class="form-grid">
+        <div class="field">
+          <label for="branchName">Name</label>
+          <input id="branchName" name="name" required />
+        </div>
+        <div class="field">
+          <label for="branchAddress">Address</label>
+          <input id="branchAddress" name="address" required />
+        </div>
+        <div class="field">
+          <label for="branchPhone">Phone</label>
+          <input id="branchPhone" name="phone" required />
+        </div>
+        <div class="field">
+          <label for="branchStatus">Status</label>
+          <select id="branchStatus" name="branch_status" required>
+            <option value="OPEN">OPEN</option>
+            <option value="CLOSED">CLOSED</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" id="cancelBranchEdit">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="saveBranchButton">Save branch</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Confirmation Popover Modal -->
+<div class="modal-overlay" id="confirmModal" hidden>
+  <div class="modal-card modal-card-sm">
+    <div class="modal-head">
+      <h4 id="confirmModalTitle">Confirm Action</h4>
+      <button type="button" class="modal-close" id="closeConfirmModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirmModalMessage">Are you sure you want to proceed?</p>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn btn-ghost" id="cancelConfirmBtn">Cancel</button>
+      <button type="button" class="btn btn-danger" id="actionConfirmBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Patient Edit Modal -->
+<div class="modal-overlay" id="patientModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h4 id="patientFormTitle">Edit patient</h4>
+      <button type="button" class="modal-close" id="closePatientModal">&times;</button>
+    </div>
+    <form id="patientFormModal">
+      <div class="form-grid">
+        <div class="field">
+          <label for="patientFullName">Full name</label>
+          <input id="patientFullName" name="full_name" required />
+        </div>
+        <div class="field">
+          <label for="patientDob">Date of birth</label>
+          <input id="patientDob" name="dob" type="date" required />
+        </div>
+        <div class="field">
+          <label for="patientGender">Gender</label>
+          <select id="patientGender" name="gender" required>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="patientMobile">Mobile</label>
+          <input id="patientMobile" name="mobile" required />
+        </div>
+        <div class="field">
+          <label for="patientEmail">Email</label>
+          <input id="patientEmail" name="email" type="email" />
+        </div>
+        <div class="field">
+          <label for="patientEmergencyContact">Emergency contact</label>
+          <input id="patientEmergencyContact" name="emergency_contact" />
+        </div>
+        <div class="field">
+          <label for="patientBloodGroup">Blood group</label>
+          <input id="patientBloodGroup" name="blood_group" />
+        </div>
+        <div class="field">
+          <label for="patientAddress">Address</label>
+          <input id="patientAddress" name="address" required />
+        </div>
+        <div class="field" style="grid-column: 1 / -1;">
+          <label for="patientAllergies">Allergies</label>
+          <input id="patientAllergies" name="allergies" />
+        </div>
+        <div class="field" style="grid-column: 1 / -1;">
+          <label for="patientMedicalHistory">Medical history</label>
+          <textarea id="patientMedicalHistory" name="medical_history" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" id="cancelPatientEdit">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="savePatientButton">Update patient</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Patient Details Modal -->
+<div class="modal-overlay" id="patientDetailsModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h4 id="patientDetailsTitle">Patient Profile</h4>
+      <button type="button" class="modal-close" id="closePatientDetailsModal">&times;</button>
+    </div>
+    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+      <div id="patientDetailsProfile">
+         <!-- Populated via JS -->
+      </div>
+      <h5 style="margin-top: 20px; border-bottom: 1px solid var(--line); padding-bottom: 8px;">Medical History Timeline</h5>
+      <div id="patientDetailsTimeline" class="timeline-container" style="margin-top: 15px; padding-left: 20px; border-left: 2px solid var(--line);">
+        <!-- Populated via JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Conversation Viewer Modal -->
+<div class="modal-overlay" id="conversationModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <h4 id="conversationModalTitle">Conversation</h4>
+        <p class="section-sub" id="conversationModalSub" style="margin:2px 0 0;"></p>
+      </div>
+      <button type="button" class="modal-close" id="closeConversationModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="chatThread" class="chat-thread">
+        <div class="loading">Loading conversation&hellip;</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Complete Appointment Modal -->
+<div class="modal-overlay" id="completeAppointmentModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h4>Mark Appointment as Completed</h4>
+      <button type="button" class="modal-close" onclick="document.getElementById('completeAppointmentModal').hidden = true">&times;</button>
+    </div>
+    <form id="completeForm" onsubmit="submitCompleteAppointment(event)">
+      <div class="form-grid">
+        <div class="field">
+          <label for="symptoms">Symptoms Reported</label>
+          <textarea id="symptoms" placeholder="Enter patient symptoms..." required></textarea>
+        </div>
+        <div class="field">
+          <label for="diagnosis">Diagnosis</label>
+          <textarea id="diagnosis" placeholder="Enter diagnosis..." required></textarea>
+        </div>
+        <div class="field">
+          <label for="consultationNotes">Additional Notes</label>
+          <textarea id="consultationNotes" placeholder="Additional consultation notes..." ></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('completeAppointmentModal').hidden = true">Cancel</button>
+        <button type="submit" class="btn btn-primary">Mark Completed</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Prescription Modal -->
+<div class="modal-overlay" id="prescriptionModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h4>Add Prescription</h4>
+      <button type="button" class="modal-close" onclick="document.getElementById('prescriptionModal').hidden = true">&times;</button>
+    </div>
+    <form id="prescriptionForm" onsubmit="submitPrescription(event)">
+      <div class="form-grid">
+        <div class="field">
+          <label for="medicinesContainer">Medicines</label>
+          <div id="medicinesContainer" style="margin-bottom: 15px;">
+            <!-- Medicines will be added here -->
+          </div>
+          <button type="button" class="btn btn-ghost btn-small" onclick="addMedicineRow()" style="width: 100%; margin-bottom: 15px;">+ Add Medicine</button>
+        </div>
+        <div class="field">
+          <label for="validityDays">Validity (Days)</label>
+          <input id="validityDays" type="number" value="30" min="1" />
+        </div>
+        <div class="field">
+          <label for="prescriptionInstructions">Instructions</label>
+          <textarea id="prescriptionInstructions" placeholder="Special instructions for the patient..."></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('prescriptionModal').hidden = true">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Prescription</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Medical Report Modal -->
+<div class="modal-overlay" id="medicalReportModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h4>Add Medical Report</h4>
+      <button type="button" class="modal-close" onclick="document.getElementById('medicalReportModal').hidden = true">&times;</button>
+    </div>
+    <form id="medicalReportForm" onsubmit="submitMedicalReport(event)">
+      <div class="form-grid">
+        <div class="field">
+          <label for="reportName">Report Name</label>
+          <input id="reportName" placeholder="e.g., Blood Test, X-Ray" required />
+        </div>
+        <div class="field">
+          <label for="reportType">Report Type</label>
+          <select id="reportType" required>
+            <option value="">Select Type</option>
+            <option value="LAB_TEST">Lab Test</option>
+            <option value="IMAGING">Imaging</option>
+            <option value="SCAN">Scan</option>
+            <option value="XRAY">X-Ray</option>
+            <option value="ECG">ECG</option>
+            <option value="ULTRASOUND">Ultrasound</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="reportFindings">Findings</label>
+          <textarea id="reportFindings" placeholder="Report findings and observations..."></textarea>
+        </div>
+        <div class="field">
+          <label for="reportStatus">Status</label>
+          <select id="reportStatus" required>
+            <option value="PENDING">Pending</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="REVIEWED">Reviewed</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('medicalReportModal').hidden = true">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Report</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Generic status modal for non-blocking admin notifications -->
+<div class="modal-overlay" id="statusModal" hidden>
+  <div class="modal-card modal-card-sm">
+    <div class="modal-head">
+      <h4 id="statusModalTitle">Status</h4>
+      <button type="button" class="modal-close" data-close-status-modal>&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="statusModalText" style="margin:0; line-height:1.6; color:var(--ink);"></p>
+      <div class="form-actions" style="margin-top:20px; padding-top:0; border:none;">
+        <button type="button" class="btn btn-primary" data-close-status-modal>OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Choice modal for post-consultation actions -->
+<div class="modal-overlay" id="postConsultationChoiceModal" hidden>
+  <div class="modal-card modal-card-sm">
+    <div class="modal-head">
+      <h4>Post-consultation action</h4>
+      <button type="button" class="modal-close" data-close-choice-modal>&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin:0 0 18px; line-height:1.6; color:var(--ink);">Choose what to record next for this patient.</p>
+      <div class="form-actions" style="flex-direction:column; align-items:stretch; gap:10px; border:none; padding:0;">
+        <button type="button" class="btn btn-primary" id="choiceAddPrescriptionBtn">Add Prescription</button>
+        <button type="button" class="btn btn-ghost" id="choiceAddReportBtn">Add Medical Report</button>
+        <button type="button" class="btn btn-ghost" data-close-choice-modal>Skip for now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- User Create / Edit Modal -->
+<div class="modal-overlay" id="userFormModal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h4 id="userFormModalTitle">Create New User</h4>
+      <button type="button" class="modal-close" onclick="closeUserFormModal()">&times;</button>
+    </div>
+    <form id="userForm" onsubmit="submitUserForm(event)">
+      <input type="hidden" id="userIdField" />
+      <div class="form-grid">
+        <div class="field">
+          <label>Name <span style="color:var(--red);">*</span></label>
+          <input type="text" id="userNameField" required maxlength="100">
+        </div>
+        <div class="field">
+          <label>Email <span style="color:var(--red);">*</span></label>
+          <input type="email" id="userEmailField" required>
+        </div>
+        <div class="field">
+          <label>Role <span style="color:var(--red);">*</span></label>
+          <select id="userRoleField" required onchange="handleUserRoleChange()">
+            <option value="">Select Role</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Branch</label>
+          <select id="userBranchField" onchange="handleUserBranchChange()">
+            <option value="">Select Branch</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Department</label>
+          <select id="userDepartmentField">
+            <option value="">Select Department</option>
+          </select>
+        </div>
+        <div class="field" id="userStatusContainer" hidden>
+          <label>Status</label>
+          <select id="userStatusField">
+            <option value="1">Active</option>
+            <option value="0">Inactive</option>
+          </select>
+        </div>
+        <div class="field" id="userPasswordFieldContainer">
+          <label>Password <span style="color:var(--red);">*</span></label>
+          <input type="password" id="userPasswordField" autocomplete="new-password">
+        </div>
+        <div class="field" id="userConfirmPasswordFieldContainer">
+          <label>Confirm Password <span style="color:var(--red);">*</span></label>
+          <input type="password" id="userConfirmPasswordField" autocomplete="new-password">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeUserFormModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="userFormSubmitBtn">Save User</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal-overlay" id="changePasswordModal" hidden>
+  <div class="modal-card modal-card-sm">
+    <div class="modal-head">
+      <h4>Change Password</h4>
+      <button type="button" class="modal-close" onclick="document.getElementById('changePasswordModal').hidden = true">&times;</button>
+    </div>
+    <form id="changePasswordForm" onsubmit="submitChangePassword(event)">
+      <input type="hidden" id="cpUserIdField" />
+      <div class="form-grid">
+        <div class="field" style="grid-column: 1 / -1;">
+          <label>New Password <span style="color:var(--red);">*</span></label>
+          <input type="password" id="cpNewPasswordField" required autocomplete="new-password" minlength="6">
+        </div>
+        <div class="field" style="grid-column: 1 / -1;">
+          <label>Confirm New Password <span style="color:var(--red);">*</span></label>
+          <input type="password" id="cpConfirmPasswordField" required autocomplete="new-password" minlength="6">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('changePasswordModal').hidden = true">Cancel</button>
+        <button type="submit" class="btn btn-primary">Update Password</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  .medicine-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .medicine-item input, .medicine-item select {
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .remove-medicine-btn {
+    padding: 8px 12px;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .remove-medicine-btn:hover {
+    background: var(--red-dark);
+  }
+</style>
+
+<script src="admin.js"></script>
+</body>
+</html>

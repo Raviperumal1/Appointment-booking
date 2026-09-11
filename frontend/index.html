@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Varuvi &mdash; Book a Doctor's Appointment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-shell landing-shell">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="24" height="24" fill="none">
+          <path d="M3 18 H10 L12.5 12 L16 22 L19 9 L21.5 18 H29" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="24.5" cy="9.5" r="1.6" fill="currentColor"/>
+        </svg>
+      </span>
+      <span class="brand-name">Varuvi</span>
+    </div>
+    <nav class="topbar-nav" aria-label="Primary">
+      <a href="#departments">Specialties</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#branches">Locations</a>
+    </nav>
+    <div class="topbar-actions">
+      <a href="patient.html" class="btn btn-ghost btn-small">Patient Portal</a>
+    </div>
+  </header>
+
+  <main class="landing-hero" id="landingHero">
+
+    <section class="hero" aria-label="Introduction">
+      <div class="hero-copy">
+        <span class="eyebrow">Now booking across 24 clinics</span>
+        <h1>Skip the waiting room. <span>Not the care.</span></h1>
+        <p>
+          Varuvi matches you with the right specialist and holds your exact slot &mdash; so you walk in at your time, not whenever the queue clears.
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" id="bookAppointmentBtn">
+            Book an appointment
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <a href="patient.html" class="btn btn-ghost">Track a visit</a>
+        </div>
+        <div class="hero-trust">
+          <div class="trust-avatars" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <p><strong>12,400+</strong> patients booked a slot this year &mdash; average confirmation in under 90 seconds.</p>
+        </div>
+      </div>
+
+      <aside class="hero-board" aria-label="Live appointment availability">
+        <div class="board-head">
+          <span class="board-dot" aria-hidden="true"></span>
+          <span>Next available &mdash; today</span>
+          <span class="board-clock" id="boardClock">Live</span>
+        </div>
+        <ul class="board-list">
+          <li>
+            <span class="board-time">09:40</span>
+            <span class="board-dept">Cardiology</span>
+            <span class="board-doc">Dr. Meera Iyer</span>
+            <span class="board-status is-open">Open</span>
+          </li>
+          <li>
+            <span class="board-time">10:15</span>
+            <span class="board-dept">Orthopedics</span>
+            <span class="board-doc">Dr. Arjun Nair</span>
+            <span class="board-status is-open">Open</span>
+          </li>
+          <li>
+            <span class="board-time">11:00</span>
+            <span class="board-dept">Pediatrics</span>
+            <span class="board-doc">Dr. Sana Kapoor</span>
+            <span class="board-status is-filling">Filling</span>
+          </li>
+          <li>
+            <span class="board-time">11:30</span>
+            <span class="board-dept">Dermatology</span>
+            <span class="board-doc">Dr. Rohan Desai</span>
+            <span class="board-status is-open">Open</span>
+          </li>
+          <li class="board-more">
+            <span class="board-time">+</span>
+            <span class="board-dept">18 more slots open across 6 departments</span>
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="stats-bar" aria-label="Hospital highlights">
+      <div class="stat-item">
+        <strong>12k+</strong>
+        <span>patients cared for</span>
+      </div>
+      <div class="stat-item">
+        <strong>30+</strong>
+        <span>specialists across departments</span>
+      </div>
+      <div class="stat-item">
+        <strong>12 min</strong>
+        <span>average wait once you arrive</span>
+      </div>
+      <div class="stat-item">
+        <strong>4.9 / 5</strong>
+        <span>average patient rating</span>
+      </div>
+    </section>
+
+    <section class="how-section" id="how-it-works" aria-label="How booking works">
+      <div class="section-head">
+        <span class="section-kicker">The booking flow</span>
+        <h2>Three steps, one confirmed slot</h2>
+      </div>
+      <ol class="how-steps">
+        <li>
+          <span class="how-index">01</span>
+          <h3>Tell us what's going on</h3>
+          <p>Describe your symptoms or pick a department directly &mdash; our triage suggests the right specialist for you.</p>
+        </li>
+        <li>
+          <span class="how-index">02</span>
+          <h3>Choose a doctor and time</h3>
+          <p>See real open slots per branch and doctor, not just a general queue number. Pick what actually fits your day.</p>
+        </li>
+        <li>
+          <span class="how-index">03</span>
+          <h3>Walk in at your slot</h3>
+          <p>Get an instant confirmation with a ticket code. Reschedule or cancel any time from the patient portal.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="dept-section" id="departments" aria-label="Departments">
+      <div class="section-head">
+        <span class="section-kicker">Specialties</span>
+        <h2>Find care by department</h2>
+      </div>
+      <div class="dept-grid">
+        <article class="dept-card">
+          <span class="dept-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M12 20.5s-7.9-4.9-10.2-9.6C.3 7.6 2 4 5.5 4c2 0 3.6 1.1 4.5 2.7C10.9 5.1 12.5 4 14.5 4 18 4 19.7 7.6 18.2 10.9 15.9 15.6 12 20.5 12 20.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+          </span>
+          <h3>Cardiology</h3>
+          <p>Heart health, ECGs, and ongoing cardiac care.</p>
+        </article>
+        <article class="dept-card">
+          <span class="dept-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M6 17 17 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="4.6" cy="18.4" r="2.3" stroke="currentColor" stroke-width="1.7"/><circle cx="19.4" cy="4.6" r="2.3" stroke="currentColor" stroke-width="1.7"/></svg>
+          </span>
+          <h3>Orthopedics</h3>
+          <p>Joint, bone, and sports injury treatment.</p>
+        </article>
+        <article class="dept-card">
+          <span class="dept-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M4.5 20c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </span>
+          <h3>Pediatrics</h3>
+          <p>Child health checkups, vaccines, and growth care.</p>
+        </article>
+        <article class="dept-card">
+          <span class="dept-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M12 3.5s5.5 6 5.5 10.2a5.5 5.5 0 1 1-11 0C6.5 9.5 12 3.5 12 3.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+          </span>
+          <h3>Dermatology</h3>
+          <p>Skin, hair, and allergy consultations.</p>
+        </article>
+        <article class="dept-card">
+          <span class="dept-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M9 4.5c-2.4 0-4 1.9-3.7 4-1.6.7-2.3 3-1 4.4-.8 1.8.3 4 2.3 4.4.2 1.7 2 3 3.9 2.4M9 4.5c1.6 0 2.6 1 3 2M9 4.5v14.7M15 4.5c2.4 0 4 1.9 3.7 4 1.6.7 2.3 3 1 4.4.8 1.8-.3 4-2.3 4.4-.2 1.7-2 3-3.9 2.4M15 4.5c-1.6 0-2.6 1-3 2m0 12.7V9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <h3>Neurology</h3>
+          <p>Headaches, nerve, and neurological disorders.</p>
+        </article>
+        <article class="dept-card">
+          <span class="dept-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M2 12s3.8-6 10-6 10 6 10 6-3.8 6-10 6-10-6-10-6Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/></svg>
+          </span>
+          <h3>Ophthalmology</h3>
+          <p>Eye exams, vision correction, and surgery.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="quote-section" aria-label="Patient testimonial">
+      <blockquote>
+        <p>&ldquo;I booked a cardiology slot on my lunch break and was seen within four minutes of my appointment time. No queue number, no guessing.&rdquo;</p>
+        <footer>&mdash; Priya R., booked via Varuvi</footer>
+      </blockquote>
+    </section>
+
+    <section class="cta-band" id="branches" aria-label="Get started">
+      <div class="cta-copy">
+        <h2>Your slot is waiting.</h2>
+        <p>Pick a department, choose a time, and get a confirmed ticket &mdash; the whole thing takes under two minutes.</p>
+      </div>
+      <button class="btn btn-primary btn-large" data-cta-book>Book an appointment</button>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="20" height="20" fill="none">
+          <path d="M3 18 H10 L12.5 12 L16 22 L19 9 L21.5 18 H29" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span>Varuvi</span>
+    </div>
+    <p class="footer-note">Varuvi coordinates appointments across partner clinics. In a medical emergency, contact your local emergency number directly.</p>
+    <p class="footer-copy">&copy; 2026 Varuvi. All rights reserved.</p>
+  </footer>
+
+  <!-- Floating chat launcher -->
+  <div class="chat-launcher" id="chatLauncher">
+    <button class="chat-fab chat-fab-whatsapp" id="whatsappFab" aria-label="Chat on WhatsApp" title="Chat on WhatsApp">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
+        <path d="M4 20.5 5.2 16.3C4.3 14.8 3.8 13.1 3.8 11.3 3.8 6.2 8 2 13.1 2S22.4 6.2 22.4 11.3 18.2 20.6 13.1 20.6c-1.6 0-3.1-.4-4.5-1.2L4 20.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M9.3 9.7c.2-.5.5-1.2 1-1.2.2 0 .5 0 .7.1.2 0 .4 0 .5.4l.7 1.7c.1.2.1.4 0 .6l-.5.7c-.1.2-.1.3 0 .5.4.7 1.6 1.9 2.9 2.4.2.1.4.1.5-.1l.6-.7c.2-.2.4-.2.6-.1l1.6.8c.2.1.4.2.4.5 0 .9-.5 1.7-1.3 2-1.9.7-4.6-.4-6.4-2.2C9.3 13.4 8.6 11.3 9.3 9.7Z" fill="currentColor"/>
+      </svg>
+    </button>
+    <button class="chat-fab chat-fab-ai" id="aiChatFab" aria-label="Chat with Varuvi Assistant" aria-expanded="false" title="Chat with Varuvi Assistant">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
+        <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8A2.5 2.5 0 0 1 17.5 16H10l-4.5 4V16h-.03A2.47 2.47 0 0 1 4 13.5v-8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M8 8.5h8M8 11.5h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- AI chat panel -->
+  <div class="ai-chat-panel" id="aiChatPanel" hidden>
+    <div class="ai-chat-head">
+      <div class="ai-chat-title">
+        <span class="ai-chat-dot" aria-hidden="true"></span>
+        <span>Varuvi Assistant</span>
+      </div>
+      <button class="ai-chat-close" id="aiChatClose" aria-label="Close chat">&times;</button>
+    </div>
+    <div class="ai-chat-body" id="aiChatBody"></div>
+    <div class="ai-chat-input-row" id="aiChatInputRow">
+      <input type="text" id="aiChatInput" placeholder="Type a message…" autocomplete="off">
+      <button class="ai-chat-send" id="aiChatSend" aria-label="Send message">
+        <svg viewBox="0 0 16 16" width="15" height="15" fill="none" aria-hidden="true"><path d="M2 8h11M8 3l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/marked@15.0.7/lib/marked.umd.js">
+</script>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js">
+</script>
+
+<script src="app.js"></script>
+<script>
+  document.querySelectorAll('[data-cta-book]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var main = document.getElementById('bookAppointmentBtn');
+      if (main) main.click();
+    });
+  });
+</script>
+</body>
+</html>

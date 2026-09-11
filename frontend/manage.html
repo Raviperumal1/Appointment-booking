@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Varuvi &mdash; Manage Your Appointment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="26" height="26">
+          <path d="M2 17 H9 L12 9 L17 24 L20 12 L22 17 H30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="brand-name">Varuvi</span>
+    </div>
+    <div class="topbar-actions">
+      <a href="index.html" class="btn btn-ghost btn-small">&larr; New Appointment</a>
+    </div>
+  </header>
+
+  <main class="stage service-panel">
+
+    <!-- ============ Lookup ============ -->
+    <section id="lookupPanel">
+      <h1 class="panel-title">Manage your appointment</h1>
+      <p class="panel-sub">Enter your appointment code and the mobile number you booked with.</p>
+
+      <form id="lookupForm" class="form-grid" novalidate>
+        <label class="field">
+          <span>Appointment code</span>
+          <input type="text" id="lookupCode" placeholder="e.g. APT2608100234" required>
+        </label>
+        <label class="field">
+          <span>Mobile number</span>
+          <input type="tel" id="lookupMobile" placeholder="10-digit mobile number" required>
+        </label>
+      </form>
+      <div class="pay-error" id="lookupError" hidden></div>
+
+      <div class="panel-actions">
+        <span></span>
+        <button class="btn btn-primary" id="lookupButton">Find my appointment</button>
+      </div>
+    </section>
+
+    <!-- ============ Appointment found — details + actions ============ -->
+    <section id="detailPanel" hidden>
+      <h1 class="panel-title">Your appointment</h1>
+      <p class="panel-sub">Choose what you'd like to do below.</p>
+
+      <div class="summary-card" id="detailCard"></div>
+
+      <div class="panel-actions" style="border-top:none; margin-top:8px; padding-top:0;">
+        <button class="btn btn-ghost" id="startOverBtn">&larr; Look up a different appointment</button>
+        <span></span>
+      </div>
+
+      <div class="action-row" id="actionRow">
+        <button class="btn btn-ghost" id="showRescheduleBtn">Reschedule</button>
+        <button class="btn btn-primary btn-cancel-appt" id="cancelBtn">Cancel appointment</button>
+      </div>
+
+      <!-- Reschedule picker (hidden until "Reschedule" is clicked) -->
+      <div id="reschedulePanel" hidden>
+        <h2 class="summary-heading">Pick a new date and time</h2>
+        <div class="date-rail" id="dateRail"></div>
+        <div class="slot-grid" id="slotGrid"></div>
+
+        <div class="conflict-box" id="conflictBox" hidden>
+          <div class="conflict-head">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2 1 21h22L12 2Zm0 6 6.5 11h-13L12 8Zm-1 3v3h2v-3h-2Zm0 4v2h2v-2h-2Z"/></svg>
+            <span>That slot was just taken. Here's what's open with the same doctor:</span>
+          </div>
+          <div class="conflict-options" id="conflictOptions"></div>
+        </div>
+
+        <div class="panel-actions">
+          <button class="btn btn-ghost" id="cancelRescheduleBtn">Never mind</button>
+          <button class="btn btn-primary" id="confirmRescheduleBtn" disabled>Confirm new time</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Result banner ============ -->
+    <section id="resultPanel" hidden>
+      <h1 class="panel-title" id="resultTitle">Done</h1>
+      <p class="panel-sub" id="resultSub"></p>
+      <div class="notif-preview" id="resultNotif"></div>
+      <div class="panel-actions">
+        <span></span>
+        <button class="btn btn-primary" id="resultDoneBtn">Back to Home</button>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+<script src="manage.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pydantic
+twilio
+google-genai
+google-auth
+python-dotenv
+PyJWT
+sqlalchemy
+pymysql
+cryptography
+requests
+ollama

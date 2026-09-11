@@ -1,0 +1,1111 @@
+/* ==========================================================================
+   Patient Portal Styles — Varuvi Enhancement
+   ========================================================================== */
+
+
+/* ==========================================================================
+   GLOBAL / UTILITIES
+   ========================================================================== */
+
+[hidden] {
+  display: none !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+.btn-small {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.btn-text {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--teal-mid);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-text:hover {
+  color: var(--coral);
+  text-decoration: underline;
+}
+
+
+/* ==========================================================================
+   SECTION HEADING
+   ========================================================================== */
+
+.section-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+
+/* ==========================================================================
+   AUTHENTICATION CONTAINER
+   ========================================================================== */
+
+.auth-container {
+  width: min(100% - 32px, 900px);
+  margin: 40px auto;
+}
+
+
+/* ==========================================================================
+   AUTHENTICATION TABS
+   ========================================================================== */
+
+.auth-tabs {
+  display: flex;
+  width: 100%;
+  gap: 4px;
+
+  padding: 4px;
+  margin-bottom: 20px;
+
+  background: var(--slate-bg);
+  border-radius: var(--radius-md);
+
+  box-sizing: border-box;
+}
+
+.auth-tab-btn {
+  flex: 1;
+  min-width: 0;
+
+  padding: 12px 16px;
+
+  border: none;
+  border-radius: var(--radius-sm);
+
+  background: transparent;
+  color: var(--ink-soft);
+
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.auth-tab-btn:hover {
+  color: var(--teal-deep);
+}
+
+.auth-tab-btn.active {
+  background: var(--panel);
+  color: var(--teal-deep);
+
+  box-shadow: 0 2px 8px rgba(14, 71, 73, 0.08);
+}
+
+
+/* ==========================================================================
+   AUTHENTICATION CARD
+   ========================================================================== */
+
+.auth-card {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: clamp(24px, 4vw, 40px);
+
+  background: var(--panel);
+
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-card);
+}
+
+
+/* ==========================================================================
+   AUTH CARD HEADER
+   ========================================================================== */
+
+.auth-card-header {
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.auth-card .panel-title {
+  margin: 0 0 8px;
+}
+
+.auth-card .panel-sub {
+  max-width: 620px;
+  margin: 0 auto;
+
+  color: var(--ink-soft);
+
+  line-height: 1.6;
+}
+
+
+/* ==========================================================================
+   COMMON FORM GRID
+   ========================================================================== */
+
+.form-grid {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+/* ==========================================================================
+   LOGIN FORM
+   ========================================================================== */
+
+#loginForm.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+
+  gap: 20px;
+
+  width: 100%;
+}
+
+
+/* ==========================================================================
+   REGISTER FORM
+   ========================================================================== */
+
+#registerForm.form-grid {
+  display: grid;
+
+  /*
+    Desktop:
+    2 equal columns
+  */
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr);
+
+  column-gap: 24px;
+  row-gap: 20px;
+
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+/* ==========================================================================
+   FORM FIELD
+   ========================================================================== */
+
+#registerForm .field {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+
+  margin: 0;
+}
+
+
+/* ==========================================================================
+   FIELD LABEL
+   ========================================================================== */
+
+#registerForm .field > span {
+  display: block;
+
+  margin: 0 0 8px;
+
+  color: var(--ink);
+
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+#registerForm .field > span b {
+  color: var(--coral);
+  font-weight: 600;
+}
+
+
+/* ==========================================================================
+   INPUT / SELECT / TEXTAREA
+   ========================================================================== */
+
+#registerForm input,
+#registerForm select,
+#registerForm textarea {
+  display: block;
+
+  width: 100%;
+  max-width: 100%;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+
+  background: var(--panel);
+  color: var(--ink);
+
+  font-family: inherit;
+  font-size: 15px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+
+/* ==========================================================================
+   INPUTS + SELECT
+   ========================================================================== */
+
+#registerForm input,
+#registerForm select {
+  height: 48px;
+
+  padding: 0 14px;
+}
+
+
+/* ==========================================================================
+   TEXTAREA
+   ========================================================================== */
+
+#registerForm textarea {
+  min-height: 90px;
+
+  padding: 12px 14px;
+
+  line-height: 1.5;
+
+  resize: vertical;
+}
+
+
+/* ==========================================================================
+   PLACEHOLDER
+   ========================================================================== */
+
+#registerForm input::placeholder,
+#registerForm textarea::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.65;
+}
+
+
+/* ==========================================================================
+   FOCUS STATE
+   ========================================================================== */
+
+#registerForm input:focus,
+#registerForm select:focus,
+#registerForm textarea:focus {
+  border-color: var(--teal-mid);
+
+  box-shadow:
+    0 0 0 3px rgba(14, 116, 120, 0.12);
+}
+
+
+/* ==========================================================================
+   FULL WIDTH FIELDS
+   ========================================================================== */
+
+#registerForm .field-wide {
+  grid-column: 1 / -1;
+}
+
+
+/* ==========================================================================
+   ERROR MESSAGE
+   ========================================================================== */
+
+#registerForm .pay-error {
+  grid-column: 1 / -1;
+
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 11px 14px;
+
+  border-radius: var(--radius-sm);
+
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+
+/* ==========================================================================
+   FORM ACTIONS
+   ========================================================================== */
+
+#registerForm .form-actions {
+  grid-column: 1 / -1;
+
+  width: 100%;
+
+  margin-top: 4px;
+}
+
+
+/* ==========================================================================
+   REGISTER BUTTON
+   ========================================================================== */
+
+#registerForm .btn-block {
+  width: 100%;
+  min-height: 48px;
+
+  margin: 0;
+
+  cursor: pointer;
+}
+
+
+/* ==========================================================================
+   OPTIONAL: INPUT VALIDATION
+   ========================================================================== */
+
+#registerForm input:invalid:not(:placeholder-shown),
+#registerForm select:invalid:not(:focus) {
+  /* Keep this disabled if your JavaScript handles validation styling */
+}
+
+
+/* ==========================================================================
+   TABLET
+   ========================================================================== */
+
+@media (max-width: 768px) {
+
+  .auth-container {
+    width: min(100% - 24px, 900px);
+    margin: 28px auto;
+  }
+
+  .auth-card {
+    padding: 28px 22px;
+  }
+
+  #registerForm.form-grid {
+    column-gap: 18px;
+    row-gap: 18px;
+  }
+}
+
+
+/* ==========================================================================
+   MOBILE
+   ========================================================================== */
+
+@media (max-width: 640px) {
+
+  .auth-container {
+    width: calc(100% - 24px);
+    margin: 20px auto;
+  }
+
+  .auth-card {
+    padding: 22px 16px;
+  }
+
+  .auth-tabs {
+    margin-bottom: 16px;
+  }
+
+  .auth-tab-btn {
+    padding: 11px 10px;
+    font-size: 14px;
+  }
+
+  #registerForm.form-grid {
+    grid-template-columns: 1fr;
+
+    column-gap: 0;
+    row-gap: 18px;
+  }
+
+  #registerForm .field-wide,
+  #registerForm .pay-error,
+  #registerForm .form-actions {
+    grid-column: 1;
+  }
+}
+
+
+/* ==========================================================================
+   VERY SMALL SCREENS
+   ========================================================================== */
+
+@media (max-width: 400px) {
+
+  .auth-container {
+    width: calc(100% - 16px);
+  }
+
+  .auth-card {
+    padding: 20px 14px;
+  }
+
+  .auth-tab-btn {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  #registerForm input,
+  #registerForm select {
+    height: 46px;
+
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(244, 249, 249, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 1000;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--teal-deep);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--line);
+  border-top-color: var(--coral);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Portal Navigation */
+.portal-nav {
+  display: flex;
+  gap: 8px;
+  background: var(--slate-bg);
+  padding: 6px;
+  border-radius: var(--radius-md);
+  margin-bottom: 30px;
+  overflow-x: auto;
+}
+
+.portal-nav-btn {
+  background: none;
+  border: none;
+  padding: 10px 18px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink-soft);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.portal-nav-btn.active {
+  background: var(--panel);
+  color: var(--teal-deep);
+  box-shadow: 0 2px 6px rgba(14, 71, 73, 0.06);
+}
+
+.portal-tab-panel {
+  display: none;
+}
+
+.portal-tab-panel.is-active {
+  display: block;
+}
+
+/* Dashboard Tab Styles */
+.dashboard-welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, var(--teal-deep), var(--teal-mid));
+  color: #fff;
+  padding: 24px 30px;
+  border-radius: var(--radius-lg);
+}
+
+.dashboard-welcome h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.uhid-badge {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  backdrop-filter: blur(4px);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+@media(max-width: 600px) {
+  .summary-grid { grid-template-columns: 1fr; }
+}
+
+.summary-card-p {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.summary-card-p h3 {
+  margin: 0 0 16px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.p-card-body {
+  font-size: 15px;
+}
+
+.p-card-body p { margin: 6px 0; }
+
+.dashboard-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+@media(max-width: 600px) {
+  .dashboard-split { grid-template-columns: 1fr; }
+}
+
+.split-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.split-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.split-card-header h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--teal-deep);
+}
+
+.split-card-content {
+  padding: 20px;
+  min-height: 120px;
+}
+
+.quick-actions-bar {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.quick-actions-bar h3 {
+  margin: 0 0 18px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 16px;
+}
+
+.action-btn {
+  background: var(--mist);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
+  text-decoration: none;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.action-btn:hover {
+  background: var(--panel);
+  border-color: var(--coral);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 93, 115, 0.1);
+}
+
+.action-icon {
+  font-size: 24px;
+}
+
+.action-btn strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.action-btn span:last-child {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+/* Appointment Tabs */
+.appt-subtabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+}
+
+.appt-subtab-btn {
+  background: none;
+  border: none;
+  padding: 8px 14px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.appt-subtab-btn.active {
+  background: var(--slate-bg);
+  color: var(--teal-deep);
+}
+
+.appt-item {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.appt-info-col h4 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--teal-deep);
+}
+
+.appt-meta-info {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.appt-meta-info span {
+  display: inline-flex;
+  align-items: center;
+}
+
+.appt-actions-col {
+  display: flex;
+  gap: 8px;
+}
+
+/* Rescheduled details indicator inside cards */
+.reschedule-alert {
+  background: #FFF3CD;
+  color: #856404;
+  border: 1px solid #FFEEBA;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 12px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* Clinical Timeline */
+.clinical-timeline {
+  position: relative;
+  padding-left: 28px;
+  margin-top: 20px;
+}
+
+.clinical-timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--line);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.timeline-icon {
+  position: absolute;
+  left: -28px;
+  top: 4px;
+  width: 18px;
+  height: 18px;
+  background: var(--mist);
+  border: 2px solid var(--teal-deep);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.timeline-item.completed .timeline-icon {
+  background: var(--mint);
+  border-color: var(--mint);
+}
+
+.timeline-item.booked .timeline-icon {
+  background: var(--teal-mid);
+  border-color: var(--teal-mid);
+}
+
+.timeline-item.cancelled .timeline-icon {
+  background: var(--coral);
+  border-color: var(--coral);
+}
+
+.timeline-content {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.timeline-date {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+.timeline-content h4 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--teal-deep);
+}
+
+.timeline-content p {
+  margin: 6px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.timeline-content .details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+  background: var(--mist);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+}
+
+/* Prescription List */
+.prescription-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.presc-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.presc-head h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--teal-deep);
+}
+
+.presc-date {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.medicine-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.medicine-table th, .medicine-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.medicine-table th {
+  color: var(--ink-soft);
+  font-weight: 600;
+  background: var(--mist);
+}
+
+/* Medical Reports Grid */
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.report-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.2s ease;
+}
+
+.report-card:hover {
+  border-color: var(--teal-mid);
+}
+
+.report-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.report-doc-icon {
+  font-size: 28px;
+}
+
+.report-title-col h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--teal-deep);
+}
+
+.report-title-col span {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.report-meta {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.report-meta p { margin: 4px 0; }
+
+.report-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+/* Profile Tab Grid Layout */
+.profile-page-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+@media(max-width: 760px) {
+  .profile-page-grid { grid-template-columns: 1fr; }
+}
+
+.profile-details-view {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  box-shadow: var(--shadow-card);
+}
+
+.profile-details-view h3 {
+  margin: 0 0 20px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--teal-deep);
+}
+
+.profile-grid-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-grid-rows .row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--mist);
+  padding-bottom: 10px;
+}
+
+.profile-grid-rows .row span:first-child {
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.profile-edit-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  box-shadow: var(--shadow-card);
+}
+
+.profile-edit-card h3 {
+  margin: 0 0 20px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--teal-deep);
+}
+
+/* Modal Styling */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 22, 26, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-card {
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 18px 48px rgba(0,0,0,0.24);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--teal-deep);
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.btn-close:hover { color: var(--coral); }
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+}

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Varuvi &mdash; Book a Doctor's Appointment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell booking-shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="26" height="26">
+            <path d="M2 17 H9 L12 9 L17 24 L20 12 L22 17 H30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="brand-name">Varuvi</span>
+      </div>
+      <div class="topbar-actions">
+        <a href="index.html" class="btn btn-ghost btn-small">&larr; Back to home</a>
+      </div>
+    </header>
+
+    <section class="booking-page" id="bookingApp">
+      <div class="booking-header">
+        <div>
+          <span class="eyebrow">Appointment booking</span>
+          <h2>Complete your booking</h2>
+        </div>
+      </div>
+
+      <nav class="stepper" aria-label="Booking progress">
+        <div class="stepper-track">
+          <div class="stepper-fill" id="stepperFill"></div>
+        </div>
+        <ol class="stepper-dots" id="stepperDots">
+          <li data-step="1"><span class="dot">1</span><span class="label">Patient</span></li>
+          <li data-step="2"><span class="dot">2</span><span class="label">Branch</span></li>
+          <li data-step="3"><span class="dot">3</span><span class="label">Department</span></li>
+          <li data-step="4"><span class="dot">4</span><span class="label">Doctor</span></li>
+          <li data-step="5"><span class="dot">5</span><span class="label">Date &amp; Time</span></li>
+          <li data-step="6"><span class="dot">6</span><span class="label">Confirmed</span></li>
+        </ol>
+      </nav>
+
+      <main class="stage">
+        <section class="step-panel is-active" data-panel="1">
+          <h1 class="panel-title">Tell us about the patient</h1>
+          <p class="panel-sub">This goes on the appointment record and the confirmation SMS.</p>
+
+          <form id="patientForm" class="form-grid" novalidate>
+            <label class="field">
+              <span>Full name</span>
+              <input type="text" id="patientName" placeholder="e.g. Kavya Subramanian" required>
+              <small class="error" id="err-patientName"></small>
+            </label>
+            <label class="field">
+              <span>Age</span>
+              <input type="number" id="patientAge" min="1" max="120" placeholder="e.g. 32" required>
+              <small class="error" id="err-patientAge"></small>
+            </label>
+            <label class="field">
+              <span>Mobile number</span>
+              <input type="tel" id="patientMobile" placeholder="10-digit mobile number" required>
+              <small class="error" id="err-patientMobile"></small>
+            </label>
+            <label class="field field-wide">
+              <span>Consultation reason / symptoms</span>
+              <textarea id="patientReason" rows="2" placeholder="e.g. Chest pain for 2 days, follow-up, etc." required></textarea>
+            </label>
+          </form>
+
+          <div class="panel-actions">
+            <span></span>
+            <button class="btn btn-primary" id="toStep2">Continue &rarr;</button>
+          </div>
+        </section>
+
+        <section class="step-panel" data-panel="2">
+          <h1 class="panel-title">Choose a hospital branch</h1>
+          <p class="panel-sub">Departments and doctors are fetched for whichever branch you pick.</p>
+          <div class="card-grid" id="branchList"><div class="loading">Loading branches&hellip;</div></div>
+          <div class="panel-actions">
+            <button class="btn btn-ghost" data-back>&larr; Back</button>
+            <span></span>
+            <button class="btn btn-primary" id="toStep3" disabled>Next &rarr;</button>
+          </div>
+        </section>
+
+        <section class="step-panel" data-panel="3">
+          <div class="step-overlay" id="deptOverlay" hidden>
+            <div class="ai-loader-pulse">
+              <div class="ai-spinner"></div>
+              <span class="ai-sparkle">🤖</span>
+            </div>
+            <div class="overlay-text">
+              <strong>AI Symptom Analysis in Progress</strong>
+              <span>Analyzing your symptoms and matching the best department...</span>
+            </div>
+          </div>
+
+          <h1 class="panel-title">Choose a department</h1>
+          <p class="panel-sub" id="deptContext"></p>
+          <div class="recommendation-note" id="deptSuggestion" hidden></div>
+          <div class="card-grid" id="deptList"></div>
+          <div class="panel-actions">
+            <button class="btn btn-ghost" data-back>&larr; Back</button>
+            <span></span>
+            <button class="btn btn-primary" id="toStep4" disabled>Next &rarr;</button>
+          </div>
+        </section>
+
+        <section class="step-panel" data-panel="4">
+          <h1 class="panel-title">Choose a doctor</h1>
+          <p class="panel-sub" id="doctorContext"></p>
+          <div class="card-grid doctor-grid" id="doctorList"></div>
+          <div class="panel-actions">
+            <button class="btn btn-ghost" data-back>&larr; Back</button>
+            <span></span>
+            <button class="btn btn-primary" id="toStep5" disabled>Next &rarr;</button>
+          </div>
+        </section>
+
+        <section class="step-panel" data-panel="5">
+          <h1 class="panel-title">Pick a date and time</h1>
+          <p class="panel-sub" id="slotContext"></p>
+
+          <div class="date-rail" id="dateRail"></div>
+
+          <div id="slotArea">
+            <div class="slot-grid" id="slotGrid"></div>
+          </div>
+
+          <div class="conflict-box" id="conflictBox" hidden>
+            <div class="conflict-head">
+              <svg viewBox="0 0 24 24" width="20" height="20">
+                <path fill="currentColor" d="M12 2 1 21h22L12 2Zm0 6 6.5 11h-13L12 8Zm-1 3v3h2v-3h-2Zm0 4v2h2v-2h-2Z"/>
+              </svg>
+              <span>That slot was just booked. Here are the next available times with the same doctor.</span>
+            </div>
+            <div class="conflict-options" id="conflictOptions"></div>
+          </div>
+
+          <div class="summary-block" id="summaryBlock" hidden>
+            <h2 class="summary-heading">Review &amp; Confirm</h2>
+            <div class="summary-card" id="summaryCard"></div>
+            <div class="pay-error" id="bookError" hidden></div>
+            <button class="btn btn-primary btn-confirm" id="confirmButton">Confirm Booking</button>
+          </div>
+
+          <div class="panel-actions">
+            <button class="btn btn-ghost" data-back>&larr; Back</button>
+          </div>
+        </section>
+
+        <section class="step-panel" data-panel="6">
+          <h1 class="panel-title">You're booked</h1>
+          <p class="panel-sub">A confirmation has been sent by SMS / EMAIL.</p>
+          <div class="ticket" id="ticket"></div>
+          <div class="notif-preview" id="notifPreview"></div>
+          <div class="panel-actions">
+            <button class="btn btn-ghost" id="cancelBooking" hidden>Cancel / Reschedule</button>
+            <button class="btn btn-primary" id="bookAnother">Book Another Appointment</button>
+          </div>
+        </section>
+      </main>
+
+      <footer class="foot-note">
+        <a href="patient.html">Manage your bookings in the Patient Portal &rarr;</a>
+      </footer>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

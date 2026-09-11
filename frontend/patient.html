@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Varuvi &mdash; Patient Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="patient.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ============ Header ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="26" height="26">
+          <path d="M2 17 H9 L12 9 L17 24 L20 12 L22 17 H30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="brand-name">Varuvi</span>
+    </div>
+    <div class="topbar-actions" id="topbarActions">
+      <!-- Dynamically filled with Patient ID or login prompt -->
+    </div>
+  </header>
+
+  <!-- ============ Loading Shell ============ -->
+  <div id="portalLoader" class="loading-overlay" hidden>
+    <div class="spinner"></div>
+    <span id="loaderText">Loading portal data...</span>
+  </div>
+
+  <!-- ============ 1. AUTHENTICATION SECTION ============ -->
+  <main class="stage" id="authSection">
+    <div class="auth-container">
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab-btn active" id="tabBtnLogin">Sign In</button>
+        <button type="button" class="auth-tab-btn" id="tabBtnRegister">Register Account</button>
+      </div>
+
+      <!-- Login Card -->
+      <div class="auth-card" id="loginCard">
+        <h1 class="panel-title text-center">Welcome back</h1>
+        <p class="panel-sub text-center">Enter your details to access your dashboard</p>
+        
+        <form id="loginForm" class="form-grid" novalidate>
+          <label class="field">
+            <span>Username, Email or Mobile</span>
+            <input type="text" id="loginUser" placeholder="e.g. akash or 9876543210" required>
+          </label>
+          <label class="field">
+            <span>Password</span>
+            <input type="password" id="loginPass" placeholder="••••••••" required>
+          </label>
+          <div class="pay-error" id="loginError" hidden></div>
+          <button class="btn btn-primary btn-block" type="submit">Sign In &rarr;</button>
+        </form>
+      </div>
+
+      <!-- Register Card -->
+      <div class="auth-card" id="registerCard" hidden>
+
+        <div class="auth-card-header">
+          <h1 class="panel-title text-center">New Patient Registration</h1>
+          <br>
+        </div>
+
+        <form id="registerForm" class="form-grid" novalidate>
+
+          <!-- Row 1 -->
+          <label class="field">
+            <span>Full Name <b>*</b></span>
+            <input
+              type="text"
+              id="regName"
+              placeholder="e.g. Akash Mishra"
+              required
+            >
+          </label>
+
+          <label class="field">
+            <span>Username <b>*</b></span>
+            <input
+              type="text"
+              id="regUser"
+              placeholder="e.g. akashmishra"
+              required
+            >
+          </label>
+
+          <!-- Row 2 -->
+          <label class="field">
+            <span>Date of Birth <b>*</b></span>
+            <input
+              type="date"
+              id="regDob"
+              required
+            >
+          </label>
+
+          <label class="field">
+            <span>Gender <b>*</b></span>
+            <select id="regGender" required>
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+
+          <!-- Row 3 -->
+          <label class="field">
+            <span>Mobile Number <b>*</b></span>
+            <input
+              type="tel"
+              id="regMobile"
+              placeholder="10-digit mobile number"
+              maxlength="10"
+              inputmode="numeric"
+              required
+            >
+          </label>
+
+          <label class="field">
+            <span>Email Address</span>
+            <input
+              type="email"
+              id="regEmail"
+              placeholder="e.g. name@example.com"
+            >
+          </label>
+
+          <!-- Row 4 -->
+          <label class="field">
+            <span>Emergency Contact <b>*</b></span>
+            <input
+              type="tel"
+              id="regEmergency"
+              placeholder="Emergency contact number"
+              maxlength="10"
+              inputmode="numeric"
+              required
+            >
+          </label>
+
+          <label class="field">
+            <span>Blood Group</span>
+            <select id="regBlood">
+              <option value="Not provided">Select Blood Group</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+            </select>
+          </label>
+
+          <!-- Row 5 -->
+          <label class="field">
+            <span>Password <b>*</b></span>
+            <input
+              type="password"
+              id="regPass"
+              placeholder="At least 6 characters"
+              minlength="6"
+              required
+            >
+          </label>
+
+          <label class="field">
+            <span>Address <b>*</b></span>
+            <input
+              type="text"
+              id="regAddress"
+              placeholder="House / Street / Area"
+              required
+            >
+          </label>
+
+          <!-- Full Width -->
+          <label class="field field-wide">
+            <span>Known Allergies</span>
+            <input
+              type="text"
+              id="regAllergies"
+              placeholder="e.g. Peanuts, Penicillin (leave blank if none)"
+            >
+          </label>
+
+          <!-- Full Width -->
+          <label class="field field-wide">
+            <span>Chronic Illnesses / Medical History</span>
+            <textarea
+              id="regHistory"
+              rows="3"
+              placeholder="e.g. Asthma, Diabetes, Hypertension (leave blank if none)"
+            ></textarea>
+          </label>
+
+          <!-- Full Width Error -->
+          <div
+            class="pay-error field-wide"
+            id="registerError"
+            hidden
+          ></div>
+
+          <!-- Full Width Button -->
+          <div class="form-actions field-wide">
+            <button
+              class="btn btn-primary btn-block"
+              type="submit"
+            >
+              Create Patient Account &rarr;
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Activation Card -->
+      <div class="auth-card" id="activateCard" hidden>
+        <div class="auth-card-header">
+          <h1 class="panel-title text-center">Activate Portal Account</h1>
+          <p class="panel-sub text-center" id="activateMessage">Your patient profile already exists. Verify your mobile number to activate your Patient Portal account.</p>
+        </div>
+
+        <!-- Step 1: OTP Entry -->
+        <form id="activateOtpForm" class="form-grid" novalidate>
+          <label class="field field-wide">
+            <span>Enter OTP sent to your mobile</span>
+            <input type="text" id="activateOtp" placeholder="6-digit OTP" required>
+          </label>
+          <div class="pay-error field-wide" id="activateOtpError" hidden></div>
+          <div class="form-actions field-wide">
+            <button class="btn btn-primary btn-block" type="submit">Verify & Activate Account &rarr;</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ============ 2. PATIENT MAIN PORTAL SECTION ============ -->
+  <main class="stage" id="portalSection" hidden>
+    <!-- Portal Navigation Tab Bar -->
+    <nav class="portal-nav" aria-label="Portal section tabs">
+      <button class="portal-nav-btn active" data-portal-tab="dashboard">Dashboard</button>
+      <button class="portal-nav-btn" data-portal-tab="appointments">Appointments</button>
+      <button class="portal-nav-btn" data-portal-tab="timeline">Medical Timeline</button>
+      <button class="portal-nav-btn" data-portal-tab="prescriptions">Prescriptions</button>
+      <button class="portal-nav-btn" data-portal-tab="reports">Medical Reports</button>
+      <button class="portal-nav-btn" data-portal-tab="profile">My Profile</button>
+    </nav>
+
+    <!-- Error Callout -->
+    <div class="pay-error" id="portalError" style="margin-bottom:20px;" hidden></div>
+
+    <!-- ============ TAB Content Panels ============ -->
+
+    <!-- A. Dashboard Tab Panel -->
+    <section class="portal-tab-panel is-active" id="dashboardTabPanel">
+      <div class="dashboard-welcome">
+        <h2 id="welcomeName">Hello Patient</h2>
+        <div id="welcomeUHID" class="uhid-badge" style="margin-top:8px; display:inline-block;">UHID</div>
+      </div>
+
+      <!-- Quick Summary Cards -->
+      <div class="summary-grid">
+        <div class="summary-card-p">
+          <h3>Next Appointment</h3>
+          <div id="dashNextAppt" class="p-card-body">
+            <div class="loading-sm">Loading next booking...</div>
+          </div>
+        </div>
+        <div class="summary-card-p">
+          <h3>Outstanding Bills</h3>
+          <div id="dashBills" class="p-card-body">
+            <div class="loading-sm">Checking invoices...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Records Summary -->
+      <div class="dashboard-split">
+        <div class="split-card">
+          <div class="split-card-header">
+            <h3>Recent Clinical Diagnosis</h3>
+            <button class="btn-text" id="btnGoToTimeline">View all &rarr;</button>
+          </div>
+          <div id="dashRecentDiagnosis" class="split-card-content">
+            <div class="loading-sm">Loading medical history...</div>
+          </div>
+        </div>
+        <div class="split-card">
+          <div class="split-card-header">
+            <h3>Recent Prescriptions</h3>
+            <button class="btn-text" id="btnGoToPrescripts">View all &rarr;</button>
+          </div>
+          <div id="dashRecentPrescription" class="split-card-content">
+            <div class="loading-sm">Loading prescriptions...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions Grid -->
+      <div class="quick-actions-bar">
+        <h3>Quick Actions</h3>
+        <div class="actions-grid">
+          <a href="index.html" class="action-btn">
+            <span class="action-icon">📅</span>
+            <strong>Book Appointment</strong>
+            <span>Schedule a consultation</span>
+          </a>
+          <button type="button" class="action-btn" id="actGoToHistory">
+            <span class="action-icon">🩺</span>
+            <strong>Medical Timeline</strong>
+            <span>Consultation summaries</span>
+          </button>
+          <button type="button" class="action-btn" id="actGoToReports">
+            <span class="action-icon">🔬</span>
+            <strong>Medical Reports</strong>
+            <span>View test reports</span>
+          </button>
+          <button type="button" class="action-btn" id="actGoToProfile">
+            <span class="action-icon">👤</span>
+            <strong>Update Profile</strong>
+            <span>Allergies and emergency info</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- B. Appointments Tab Panel -->
+    <section class="portal-tab-panel" id="appointmentsTabPanel">
+      <div class="section-heading-row">
+        <h2 class="panel-title">My Appointments</h2>
+        <a href="index.html" class="btn btn-primary btn-small">+ Book Appointment</a>
+      </div>
+
+      <div class="appt-subtabs">
+        <button class="appt-subtab-btn active" data-subtab="upcoming">Upcoming</button>
+        <button class="appt-subtab-btn" data-subtab="completed">Completed</button>
+        <button class="appt-subtab-btn" data-subtab="history">Cancelled / Rescheduled</button>
+      </div>
+
+      <div id="apptListContainer">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- C. Medical History Timeline Tab Panel -->
+    <section class="portal-tab-panel" id="timelineTabPanel">
+      <h2 class="panel-title">Medical Timeline</h2>
+      <p class="panel-sub">Complete history of visits, consultations, and test updates in chronological order.</p>
+
+      <div class="clinical-timeline" id="timelineContainer">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- D. Prescriptions Tab Panel -->
+    <section class="portal-tab-panel" id="prescriptionsTabPanel">
+      <h2 class="panel-title">Prescription History</h2>
+      <p class="panel-sub">Access medication sheets issued during your previous visits.</p>
+
+      <div class="prescription-list" id="prescriptionContainer">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- E. Medical Reports Tab Panel -->
+    <section class="portal-tab-panel" id="reportsTabPanel">
+      <h2 class="panel-title">Medical Reports</h2>
+      <p class="panel-sub">View and download your uploaded lab results, radiological analyses, and diagnosis documents.</p>
+
+      <div class="reports-grid" id="reportsContainer">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- F. Profile Tab Panel -->
+    <section class="portal-tab-panel" id="profileTabPanel">
+      <h2 class="panel-title">My Profile</h2>
+      <p class="panel-sub">Keep your contact details, emergency reference, and allergies updated for clinical accuracy.</p>
+
+      <div class="profile-page-grid">
+        <!-- View details -->
+        <div class="profile-details-view" id="profileDetailsView">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Edit Form -->
+        <div class="profile-edit-card">
+          <h3>Update Information</h3>
+          <form id="profileEditForm" class="form-grid">
+            <label class="field">
+              <span>Full Name</span>
+              <input type="text" id="profName" required>
+            </label>
+            <label class="field">
+              <span>Date of Birth</span>
+              <input type="date" id="profDob" required>
+            </label>
+            <label class="field">
+              <span>Gender</span>
+              <select id="profGender" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Mobile Number</span>
+              <input type="tel" id="profMobile" required>
+            </label>
+            <label class="field">
+              <span>Email Address</span>
+              <input type="email" id="profEmail">
+            </label>
+            <label class="field">
+              <span>Address</span>
+              <input type="text" id="profAddress" required>
+            </label>
+            <label class="field">
+              <span>Emergency Contact</span>
+              <input type="tel" id="profEmergency" required>
+            </label>
+            <label class="field">
+              <span>Blood Group</span>
+              <select id="profBlood">
+                <option value="Not provided">Not provided</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+            </label>
+            <label class="field field-wide">
+              <span>Known Allergies</span>
+              <input type="text" id="profAllergies">
+            </label>
+            <label class="field field-wide">
+              <span>Chronic Illnesses / Medical History</span>
+              <textarea id="profHistory" rows="2"></textarea>
+            </label>
+            
+            <div class="panel-actions" style="border:none; margin:0; padding:0;">
+              <span></span>
+              <button type="submit" class="btn btn-primary" id="btnUpdateProfile">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+<!-- ============ Detail View Modals ============ -->
+
+<!-- 1. Consultation Detail Modal -->
+<div class="modal-overlay" id="consultModal" hidden>
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2 class="modal-title">Consultation Record</h2>
+      <button type="button" class="btn-close" id="btnCloseConsultModal">&times;</button>
+    </div>
+    <div class="modal-body" id="consultModalBody">
+      <!-- Rendered dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- 2. Prescription Detail Modal -->
+<div class="modal-overlay" id="prescriptionModal" hidden>
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2 class="modal-title">Prescription Details</h2>
+      <button type="button" class="btn-close" id="btnClosePrescriptionModal">&times;</button>
+    </div>
+    <div class="modal-body" id="prescriptionModalBody">
+      <!-- Rendered dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- 3. Report Detail Modal -->
+<div class="modal-overlay" id="reportModal" hidden>
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2 class="modal-title">Medical Report Details</h2>
+      <button type="button" class="btn-close" id="btnCloseReportModal">&times;</button>
+    </div>
+    <div class="modal-body" id="reportModalBody">
+      <!-- Rendered dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- 4. Reschedule Appointment Modal -->
+<div class="modal-overlay" id="rescheduleModal" hidden>
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2 class="modal-title">Reschedule Appointment</h2>
+      <button type="button" class="btn-close" id="btnCloseRescheduleModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="reschedulePicker">
+        <div class="date-rail" id="dateRail"></div>
+        <div class="slot-grid" id="slotGrid"></div>
+        <div class="pay-error" id="rescheduleError" hidden></div>
+        <div class="panel-actions" style="border:none; margin-top:20px; padding:0;">
+          <button type="button" class="btn btn-ghost" id="btnCancelReschedule">Cancel</button>
+          <button type="button" class="btn btn-primary" id="btnConfirmReschedule" disabled>Confirm Reschedule</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="patient.js"></script>
+</body>
+</html>
