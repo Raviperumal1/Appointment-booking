@@ -8,6 +8,10 @@ from backend.core.security import create_admin_access_token
 from backend.auth.auth_dependencies import get_current_user, require_permission
 from pydantic import BaseModel
 from typing import Optional
+import logging
+from backend.core.logging_config import mask_email
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["Admin Auth"])
 
@@ -33,12 +37,14 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     user_record = db.query(User).filter(User.email == req.email, User.is_active == 1).first()
 
     if not user_record:
+        logger.warning(f"Invalid login attempt | email={mask_email(req.email)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",
         )
         
     if not verify_password(req.password, user_record.password_hash):
+        logger.warning(f"Invalid login attempt | email={mask_email(req.email)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",
@@ -54,6 +60,8 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         "department_id": user_record.department_id
     }
     access_token = create_admin_access_token(token_data)
+    
+    logger.info(f"Staff login successful | user_id={user_record.id} | role={role_name}")
     
     return {
         "access_token": access_token,

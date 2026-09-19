@@ -79,7 +79,6 @@ def get_conversation_history(db: Session, metadata: ConversationMetadata) -> Lis
         ConversationMessage.timestamp >= metadata.created_at.isoformat()
     ).order_by(ConversationMessage.id.asc()).all()
 
-    print(f"messages: {messages}")
 
     history = []
     current_turn = {"user": None, "bot": None}

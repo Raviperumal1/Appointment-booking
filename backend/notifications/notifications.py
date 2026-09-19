@@ -3,6 +3,10 @@ import smtplib
 from email.mime.text import MIMEText
 from typing import Optional
 from dotenv import load_dotenv
+import logging
+from backend.core.logging_config import mask_phone, mask_email
+
+logger = logging.getLogger(__name__)
 
 
 load_dotenv()
@@ -43,7 +47,7 @@ def send_sms(to_mobile: str, message: str) -> dict:
     Returns a small status dict so callers can surface it if useful."""
     client = _get_twilio_client()
     if client is None:
-        print(f"[MOCK SMS -> {to_mobile}] {message}")
+        logger.info(f"MOCK SMS | mobile={mask_phone(to_mobile)} | message={message}")
         return {"channel": "sms", "mode": "mock", "to": to_mobile}
 
     to_number = to_mobile if to_mobile.startswith("+") else f"+91{to_mobile}"  # assumes India by default
@@ -51,7 +55,7 @@ def send_sms(to_mobile: str, message: str) -> dict:
         msg = client.messages.create(body=message, from_=TWILIO_FROM_NUMBER, to=to_number)
         return {"channel": "sms", "mode": "twilio", "to": to_number, "sid": msg.sid}
     except Exception as exc:  # noqa: BLE001 - notification failures shouldn't break booking
-        print(f"[TWILIO SEND FAILED -> {to_number}] {exc}")
+        logger.error(f"TWILIO SEND FAILED | mobile={mask_phone(to_number)} | error={exc}")
         return {"channel": "sms", "mode": "error", "to": to_number, "error": str(exc)}
 
 
@@ -61,7 +65,7 @@ def send_email(to_email: Optional[str], subject: str, body: str) -> Optional[dic
     if not to_email:
         return None
     if not (SMTP_HOST and SMTP_USERNAME and SMTP_PASSWORD):
-        print(f"[MOCK EMAIL -> {to_email}] Subject: {subject}\n{body}")
+        logger.info(f"MOCK EMAIL | email={mask_email(to_email)} | subject={subject}")
         return {"channel": "email", "mode": "mock", "to": to_email}
 
     try:
@@ -75,7 +79,7 @@ def send_email(to_email: Optional[str], subject: str, body: str) -> Optional[dic
             server.sendmail(SMTP_FROM, [to_email], msg.as_string())
         return {"channel": "email", "mode": "smtp", "to": to_email}
     except Exception as exc:  # noqa: BLE001
-        print(f"[EMAIL SEND FAILED -> {to_email}] {exc}")
+        logger.error(f"EMAIL SEND FAILED | email={mask_email(to_email)} | error={exc}")
         return {"channel": "email", "mode": "error", "to": to_email, "error": str(exc)}
 
 

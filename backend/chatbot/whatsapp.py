@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from pathlib import Path
@@ -12,6 +13,8 @@ if __package__ in (None, ""):
 
 from . import chat_session, booking_flow, conversation_log
 from backend.utils.mobile import normalize_mobile_number
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/webhook/whatsapp", tags=["whatsapp"])
@@ -94,7 +97,7 @@ async def receive_message(request: Request):
         return {"status": "ok"}
 
     except Exception as exc:  # noqa: BLE001 — webhook must always 200 so Meta doesn't retry-storm
-        print(f"[whatsapp webhook] error: {exc}")
+        logger.error(f"WhatsApp webhook failed | error={exc}")
         return {"status": "error", "detail": str(exc)}
 
 
@@ -178,11 +181,11 @@ def _send_list(to: str, body: str, options: list):
 
 def _post(payload: dict):
     if not WHATSAPP_TOKEN or not WHATSAPP_PHONE_NUMBER_ID:
-        print("[whatsapp] WHATSAPP_TOKEN / WHATSAPP_PHONE_NUMBER_ID not set — message not sent:", payload)
+        logger.warning("WHATSAPP_TOKEN or WHATSAPP_PHONE_NUMBER_ID not set — message not sent")
         return
     resp = requests.post(GRAPH_URL, headers=_headers(), json=payload, timeout=15)
     if resp.status_code >= 400:
-        print(f"[whatsapp] send failed ({resp.status_code}): {resp.text}")
+        logger.error(f"WhatsApp send failed | status={resp.status_code} | response={resp.text}")
 
 
 def send_appointment_notification(to: str, body: str) -> dict:
@@ -199,5 +202,5 @@ def send_appointment_notification(to: str, body: str) -> dict:
         response.raise_for_status()
         return {"channel": "whatsapp", "mode": "meta", "to": to}
     except Exception as exc:  # external delivery must never break booking
-        print(f"[whatsapp] appointment notification failed: {exc}")
+        logger.error(f"WhatsApp appointment notification failed | error={exc}")
         return {"channel": "whatsapp", "mode": "error", "to": to, "error": str(exc)}

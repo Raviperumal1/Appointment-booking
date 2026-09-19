@@ -90,8 +90,16 @@ env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
 import traceback
+import logging
+
+from backend.core.logging_config import setup_logging
+from backend.core.middleware import RequestLoggingMiddleware
+
+setup_logging()
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Hospital Appointment Booking API", version="1.0.0")
+app.add_middleware(RequestLoggingMiddleware)
 
 from backend.chatbot.webchat import router as webchat_router
 from backend.chatbot import whatsapp as whatsapp_module, conversation_log
@@ -124,7 +132,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         detail = "An unexpected internal server error occurred. Please try again later."
     
     # Log the full error on the server side
-    print(f"Unhandled Exception: {exc}\n{traceback.format_exc()}")
+    logger.exception(f"Unhandled Exception: {exc}")
     
     return JSONResponse(
         status_code=500,
@@ -160,21 +168,29 @@ def check_gpu_availability():
     try:
         import torch
         if torch.cuda.is_available():
-            print(f"\n✅ [SYSTEM] GPU DETECTED: {torch.cuda.get_device_name(0)}")
-            print("✅ [SYSTEM] Server AI models will utilize the GPU.\n")
+            logger.info(f"GPU DETECTED: {torch.cuda.get_device_name(0)}")
+            logger.info("Server AI models will utilize the GPU.")
         else:
-            print("\n⚠️ [SYSTEM] NO GPU DETECTED.")
-            print("⚠️ [SYSTEM] Server AI models will fall back to running on CPU.\n")
+            logger.info("NO GPU DETECTED.")
+            logger.info("Server AI models will fall back to running on CPU.")
     except ImportError:
-        print("\nℹ️ [SYSTEM] PyTorch is not installed. Skipping Python-level GPU check.")
-        print("ℹ️ (Note: Ollama still automatically checks for GPUs on its own!)\n")
+        logger.info("PyTorch is not installed. Skipping Python-level GPU check.")
+        logger.info("(Note: Ollama still automatically checks for GPUs on its own!)")
 
 
 @app.on_event("startup")
 def on_startup():
+    logger.info("Application starting")
     check_gpu_availability()
     init_db()
     conversation_log.ensure_tables()
+    logger.info("Application startup completed")
+
+@app.on_event("shutdown")
+def on_shutdown():
+    logger.info("Application shutdown started")
+    # Cleanups would go here
+    logger.info("Application shutdown completed")
 
 
 # ---------------------------------------------------------------------------
@@ -614,11 +630,7 @@ def _heuristic_department(
             best_score = score
             best_department_name = department_name
 
-    print("========== KEYWORD DEPARTMENT ANALYSIS ==========")
-    print(f"Symptoms: {symptoms}")
-    print(f"Scores: {scores}")
-    print(f"Matched Keywords: {matched_keywords}")
-    print("==================================================")
+    logger.debug(f"Keyword Department Analysis | symptoms={symptoms} | scores={scores} | keywords={matched_keywords}")
 
     if best_score == 0:
         return None
@@ -771,22 +783,18 @@ Respond with only the department name.
         if not raw_text:
             return None
 
-        print("========== OLLAMA DEPARTMENT IDENTIFICATION ==========")
-        print(f"Symptoms: {symptoms}")
-        print(f"Ollama Raw Response: {raw_text}")
+        logger.debug(f"Ollama Department Identification | symptoms={symptoms} | raw_response={raw_text}")
 
         for name in ordered_names:
             if re.search(rf"\b{re.escape(name)}\b", raw_text, flags=re.IGNORECASE):
-                print(f"Identified Department: {name}")
-                print("=======================================================")
+                logger.info(f"Ollama identified department | name={name}")
                 return name
 
-        print("Could not match Ollama response to a valid department.")
-        print("=======================================================")
+        logger.warning("Could not match Ollama response to a valid department.")
         return None
 
     except Exception as exc:
-        print(f"Ollama department identification failed. ({exc})")
+        logger.error(f"Ollama department identification failed | error={exc}")
         return None
 
 
@@ -833,10 +841,7 @@ def recommend_department(
     confident_match = _confident_heuristic_department(symptoms, departments)
 
     if confident_match and confident_match["name"] != ollama_department_name:
-        print(
-            f"Overriding Ollama's pick ('{ollama_department_name}') with "
-            f"confident keyword match ('{confident_match['name']}')."
-        )
+        logger.info(f"Overriding Ollama's pick | ollama={ollama_department_name} | keyword_match={confident_match['name']}")
         selected = confident_match
 
     elif ollama_department_name:
@@ -1085,9 +1090,7 @@ def analyze_symptoms(
 
     except Exception as exc:
 
-        print(
-            f"Symptom analysis failed: {exc}"
-        )
+        logger.error(f"Symptom analysis failed | error={exc}")
 
         raise HTTPException(
             status_code=500,
@@ -1237,6 +1240,7 @@ def book_appointment(req: BookRequest, db: Session = Depends(get_db)):
     try:
         db.add(new_appt)
         db.commit()
+        logger.info(f"Appointment created | appointment_id={new_appt.id} | appointment_code={code}")
     except IntegrityError:
         db.rollback()
         return {
@@ -1370,6 +1374,7 @@ def _get_owned_appointment(db: Session, code: str, patient_id: int = None, mobil
 def _mark_cancelled(db: Session, appt_row) -> None:
     appt_row.status = 'CANCELLED'
     db.commit()
+    logger.info(f"Appointment cancelled | appointment_code={appt_row.appointment_code}")
 
 
 def _notify_cancelled(db: Session, appt_row):
@@ -2352,7 +2357,7 @@ def request_otp(req: OTPRequest, db: Session = Depends(get_db)):
     expires = time.time() + 300 # 5 minutes
     DEMO_OTP_STORE[req.mobile] = {"otp": otp, "expires": expires, "attempts": 0}
     
-    print(f"\n[DEMO ONLY] OTP for {req.mobile} is {otp}\n")
+    logger.info("OTP generated for mobile")
     
     return {"message": "OTP sent successfully (Demo: check server logs)"}
 
@@ -2417,7 +2422,7 @@ def register_patient(req: PatientRegisterRequest, db: Session = Depends(get_db))
                 "pending_username": req.username,
                 "pending_password": req.password
             }
-            print(f"\n[DEMO ONLY] Activation OTP for {req.mobile} is {otp}\n")
+            logger.info("Activation OTP generated for mobile")
             
             return JSONResponse(
                 status_code=400, 

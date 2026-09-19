@@ -7,7 +7,11 @@ from backend.database.db import engine
 from sqlalchemy.orm import Session
 from backend.database.models import Patient, Appointment, Consultation, Prescription, MedicalReport, ChatUser
 from backend.utils.mobile import normalize_mobile_number
+import logging
+from backend.core.logging_config import setup_logging, mask_phone
 
+setup_logging()
+logger = logging.getLogger(__name__)
 def merge_duplicates():
     with Session(engine) as db:
         patients = db.query(Patient).all()
@@ -32,7 +36,7 @@ def merge_duplicates():
                     db.commit()
                 continue
                 
-            print(f"Found duplicates for {norm}: {[p.id for p in group]}")
+            logger.info(f"Found duplicates for {mask_phone(norm)}: {[p.id for p in group]}")
             
             # Sort to find primary (oldest first)
             group.sort(key=lambda x: x.id)
@@ -69,7 +73,7 @@ def merge_duplicates():
             primary.mobile = norm
             db.commit()
             
-        print(f"Merged {merged_count} duplicate patients.")
+        logger.info(f"Merged {merged_count} duplicate patients.")
 
 if __name__ == "__main__":
     merge_duplicates()

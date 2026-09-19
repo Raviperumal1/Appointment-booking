@@ -2,8 +2,11 @@ from datetime import date, datetime, timedelta
 from typing import List, Optional
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+import logging
 
 from backend.database.models import Doctor, Department, Branch, DoctorSpecialAvailability, DoctorSchedule, DoctorLeave, Appointment
+
+logger = logging.getLogger(__name__)
 
 def time_to_minutes(t: str) -> int:
     h, m = map(int, t.split(":"))
@@ -273,6 +276,8 @@ def create_doctor(db: Session, data: dict):
     db.add(doc)
     db.commit()
     db.refresh(doc)
+    
+    logger.info(f"Doctor created | doctor_id={doc.id}")
     return get_doctor(db, doc.id)
 
 
@@ -310,6 +315,8 @@ def update_doctor(db: Session, doctor_id: int, data: dict):
 
     db.commit()
     db.refresh(doc)
+    
+    logger.info(f"Doctor updated | doctor_id={doc.id}")
     return get_doctor(db, doc.id)
 
 
@@ -320,6 +327,7 @@ def delete_doctor(db: Session, doctor_id: int):
         
     appointment = db.query(Appointment).filter(Appointment.doctor_id == doctor_id).first()
     if appointment:
+        logger.warning(f"Delete blocked because doctor is assigned to appointments | doctor_id={doctor_id}")
         raise HTTPException(status_code=400, detail="Cannot delete doctor with existing appointments")
         
     db.query(DoctorSchedule).filter(DoctorSchedule.doctor_id == doctor_id).delete()
@@ -327,6 +335,7 @@ def delete_doctor(db: Session, doctor_id: int):
     db.delete(doc)
     db.commit()
     
+    logger.info(f"Doctor deleted | doctor_id={doctor_id}")
     return {"id": doc.id}
 
 

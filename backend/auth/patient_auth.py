@@ -18,8 +18,6 @@ security = HTTPBearer(auto_error=False)
 
 def hash_password(password: str) -> str:
     """Adaptive scrypt hash; the random salt and work parameters travel with it."""
-
-    print(f"password : {password}")
     salt = secrets.token_bytes(16)
     derived = hashlib.scrypt(password.encode("utf-8"), salt=salt, n=2**14, r=8, p=1)
     return "scrypt$16384$8$1$%s$%s" % (base64.b64encode(salt).decode(), base64.b64encode(derived).decode())

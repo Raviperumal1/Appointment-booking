@@ -4,6 +4,9 @@ from contextlib import contextmanager
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, declarative_base
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Load variables from a .env file (if present) into the environment
 load_dotenv()
@@ -26,6 +29,7 @@ engine = create_engine(
     connect_args=connect_args,
     future=True,
     pool_pre_ping=True,  # Recommended for MySQL to handle disconnected sessions
+    echo=(os.getenv("LOG_SQL", "false").lower() == "true"),
 )
 
 # Enforce FK constraints on SQLite (off by default) if they still use it
@@ -51,6 +55,7 @@ def init_db():
     """Create tables if they don't exist. Call once on startup, same as before."""
     # Import models here (not at module top) to avoid circular imports
     # between database.py and models.py.
+    logger.info(f"Database connection initialized for {engine.name}")
     Base.metadata.create_all(bind=engine)
 
     from backend.database.seed import seed_database
@@ -71,8 +76,9 @@ def get_db():
     try:
         yield db
         db.commit()
-    except Exception:
+    except Exception as exc:
         db.rollback()
+        logger.error(f"Database transaction failed | error={exc}")
         raise
     finally:
         db.close()
@@ -89,8 +95,9 @@ def get_db_ctx():
     try:
         yield db
         db.commit()
-    except Exception:
+    except Exception as exc:
         db.rollback()
+        logger.error(f"Database context transaction failed | error={exc}")
         raise
     finally:
         db.close()
